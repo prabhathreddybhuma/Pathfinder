@@ -454,3 +454,446 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--hover-bg);
 }
+/* Skills Section Styles */
+.skills-category {
+    margin-bottom: 2rem;
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.category-title {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.skill-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--dark-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.skill-item:hover {
+    border-color: var(--primary-color);
+    background: var(--hover-bg);
+}
+
+.skill-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
+.skill-item label {
+    flex: 1;
+    margin: 0 !important;
+    color: var(--light-text) !important;
+}
+
+.proficiency-select {
+    width: 120px !important;
+    padding: 0.5rem !important;
+    font-size: 0.875rem !important;
+}
+
+/* Experience Section Styles */
+.experience-entry {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+}
+
+.checkbox-group label {
+    color: var(--gray-text);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.add-experience-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--dark-bg);
+    border: 1px dashed var(--border-color);
+    color: var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 1rem 0;
+    transition: all 0.2s ease;
+}
+
+.add-experience-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+/* Animation for new experience entries */
+.experience-entry {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .skill-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .proficiency-select {
+        width: 100% !important;
+    }
+}
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: var(--dark-bg);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    color: var(--light-text);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--gray-text);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.close-btn:hover {
+    color: var(--light-text);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.skill-input-wrapper {
+    margin-bottom: 1.5rem;
+}
+
+#skillInput {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--darker-bg);
+    color: var(--light-text);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.skills-remaining {
+    color: var(--gray-text);
+    font-size: 0.875rem;
+}
+
+.suggested-skills h4 {
+    color: var(--gray-text);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.skill-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.skill-suggestion-btn {
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    color: var(--light-text);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.skill-suggestion-btn span {
+    color: var(--primary-color);
+}
+
+.skill-suggestion-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--hover-bg);
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.add-btn {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-btn:hover {
+    background: #C2EF0F;
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    color: var(--light-text);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.skills-count {
+    color: var(--gray-text);
+    font-size: 0.875rem;
+}
+
+.selected-skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    min-height: 50px;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+}
+
+.selected-skills-list:empty::after {
+    content: 'No skills selected';
+    color: var(--gray-text);
+    font-size: 0.875rem;
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+}
+
+.skill-tag {
+    background: var(--darker-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border-color);
+    animation: fadeIn 0.3s ease;
+}
+
+.skill-tag .remove-skill {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.skill-tag .remove-skill:hover {
+    opacity: 1;
+}
+
+.add-skill-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--darker-bg);
+    border: 1px dashed var(--border-color);
+    color: var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.add-skill-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+/* Modal Styles */
+.search-input {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.search-input .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-text);
+}
+
+.search-input input {
+    padding-left: 2.5rem !important;
+}
+
+.category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.category-pill {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--darker-bg);
+    color: var(--light-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-pill.active {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    border-color: var(--primary-color);
+}
+
+.skill-suggestions {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.skill-suggestion-btn {
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+}
+
+.skill-suggestion-btn.selected {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    border-color: var(--primary-color);
+}
+
+.skill-suggestion-btn.selected span {
+    color: var(--dark-bg);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .skill-suggestions {
+        grid-template-columns: 1fr;
+    }
+    
+    .category-pills {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .category-pill {
+        white-space: nowrap;
+    }
+}
