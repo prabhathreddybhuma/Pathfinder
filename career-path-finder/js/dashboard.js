@@ -1,4 +1,4 @@
-// Global state to store user data
+// Global state
 let userProfile = {
     education: null,
     skills: {
@@ -9,66 +9,176 @@ let userProfile = {
         design: []
     },
     experience: [],
-    interests: []
+    interests: {
+        careerInterests: [],
+        workPreferences: {
+            environment: null,
+            companySize: null,
+            careerLevel: null
+        }
+    }
 };
 
-let selectedSkills = new Set();
+// Constants
 const MAX_SKILLS = 16;
+const MAX_INTERESTS = 10;
+let selectedSkills = new Set();
+let selectedInterests = new Set();
 
-// DOM Elements and Initialization
+// Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if user is logged in
+    initializeApp();
+});
+
+function initializeApp() {
+    const user = checkAuthentication();
+    if (!user) return;
+
+    initializeUI(user);
+    initializeNavigation();
+    loadSavedData();
+    attachEventListeners();
+}
+
+// Authentication
+function checkAuthentication() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
         window.location.href = 'index.html';
-        return;
+        return null;
     }
+    return user;
+}
 
-    // Set user info in dashboard
+// UI Initialization
+function initializeUI(user) {
     document.getElementById('userName').textContent = user.fullName || 'User';
     document.getElementById('userEmail').textContent = user.email || '';
+}
 
-    // Initialize first section
-    showSection('education');
-    loadSavedData();
+// Navigation
+function initializeNavigation() {
+    const initialSection = window.location.hash.slice(1) || 'education';
+    showSection(initialSection);
 
-    // Add event listeners for navigation
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const section = e.currentTarget.getAttribute('data-section');
-            showSection(section);
+            if (validateCurrentSection()) {
+                showSection(section);
+            }
         });
     });
+}
 
-    // Initialize skills modal
-    initializeSkillsModal();
-});
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
 
-// Skills Modal Functions
-function initializeSkillsModal() {
-    // Set up search functionality
-    const searchInput = document.getElementById('skillInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => handleSkillInput(e.target.value));
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        initializeSection(sectionId);
     }
 
-    // Set up category filters
-    document.querySelectorAll('.category-pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-            const category = pill.textContent.toLowerCase();
-            filterSkillsByCategory(category);
+    updateNavigationState(sectionId);
+    history.pushState(null, '', `#${sectionId}`);
+}
+
+function updateNavigationState(sectionId) {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        const section = link.getAttribute('data-section');
+        link.classList.toggle('active', section === sectionId);
+    });
+
+    updatePageTitle(sectionId);
+}
+
+function updatePageTitle(sectionId) {
+    const titles = {
+        education: 'Educational Background',
+        skills: 'Skills & Expertise',
+        experience: 'Work Experience',
+        interests: 'Career Interests',
+        recommendations: 'Career Recommendations'
+    };
+    document.getElementById('sectionTitle').textContent = titles[sectionId] || 'Dashboard';
+}
+
+// Event Listeners
+function attachEventListeners() {
+    // Modal close buttons
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.add('hidden');
+            });
         });
     });
+
+    // Form submissions
+    document.getElementById('educationForm')?.addEventListener('submit', handleEducationSubmit);
+    document.getElementById('skillsForm')?.addEventListener('submit', handleSkillsSubmit);
+    document.getElementById('experienceForm')?.addEventListener('submit', handleExperienceSubmit);
+}
+
+// Validation
+function validateCurrentSection() {
+    const currentSection = document.querySelector('.content-section.active');
+    if (!currentSection) return true;
+
+    switch (currentSection.id) {
+        case 'education':
+            return validateEducation();
+        case 'skills':
+            return validateSkills();
+        case 'experience':
+            return validateExperience();
+        case 'interests':
+            return validateInterests();
+        default:
+            return true;
+    }
+}
+
+// Work Preferences
+function togglePreference(type, value) {
+    // Remove selected state from all buttons in the group
+    document.querySelectorAll(`.preference-btn[data-type="${type}"]`).forEach(btn => {
+        btn.classList.remove('selected');
+    });
+
+    // Add selected state to clicked button
+    const selectedBtn = document.querySelector(
+        `.preference-btn[data-type="${type}"][data-value="${value}"]`
+    );
+    if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+        
+        // Update user profile
+        userProfile.interests.workPreferences[type] = value;
+        saveToLocalStorage();
+        
+        // Show feedback
+        showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} preference updated`);
+    }
 }
 
 function openSkillModal() {
-    document.getElementById('skillModal').classList.remove('hidden');
-    updateSkillsRemaining();
+    const modal = document.getElementById('skillModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        updateSkillsRemaining();
+    }
 }
 
 function closeSkillModal() {
-    document.getElementById('skillModal').classList.add('hidden');
+    const modal = document.getElementById('skillModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
 }
 
 function handleSkillInput(value) {
@@ -80,30 +190,10 @@ function handleSkillInput(value) {
         const matches = skillText.includes(searchTerm);
         btn.style.display = matches ? 'flex' : 'none';
         
-        // Highlight matching text if needed
         if (matches && searchTerm) {
             const regex = new RegExp(`(${searchTerm})`, 'gi');
             const highlighted = btn.textContent.replace(regex, '<mark>$1</mark>');
             btn.innerHTML = highlighted + '<span>+</span>';
-        }
-    });
-}
-
-function filterSkillsByCategory(category) {
-    // Update active state of category pills
-    document.querySelectorAll('.category-pill').forEach(pill => {
-        pill.classList.toggle('active', 
-            pill.textContent.toLowerCase() === category);
-    });
-
-    // Filter visible skills
-    const suggestions = document.querySelectorAll('.skill-suggestion-btn');
-    suggestions.forEach(btn => {
-        if (category === 'all') {
-            btn.style.display = 'flex';
-        } else {
-            btn.style.display = 
-                btn.dataset.category === category ? 'flex' : 'none';
         }
     });
 }
@@ -151,6 +241,11 @@ function displaySelectedSkills() {
     skillsList.innerHTML = '';
     skillsCount.textContent = `${selectedSkills.size}/16 skills added`;
     
+    if (selectedSkills.size === 0) {
+        skillsList.innerHTML = '<div class="empty-state">No skills selected yet</div>';
+        return;
+    }
+    
     selectedSkills.forEach(skill => {
         const skillTag = document.createElement('div');
         skillTag.className = 'skill-tag';
@@ -171,104 +266,37 @@ function updateSkillsRemaining() {
     }
 }
 
-// Modified saveSkills function
 function saveSkills() {
     if (selectedSkills.size === 0) {
         showNotification('Please select at least one skill', 'error');
         return;
     }
 
-    // Categorize skills
-    const categorizedSkills = {
-        technical: [],
-        business: [],
-        marketing: [],
-        design: []
-    };
+    // Update user profile
+    userProfile.skills.technical = Array.from(selectedSkills).map(skill => ({
+        skill,
+        proficiency: 'intermediate'
+    }));
 
-    selectedSkills.forEach(skill => {
-        const btn = document.querySelector(`[onclick="addSkill('${skill}')"]`);
-        const category = btn?.dataset.category || 'technical';
-        categorizedSkills[category].push({
-            skill,
-            proficiency: 'intermediate'
-        });
-    });
-
-    userProfile.skills = categorizedSkills;
     saveToLocalStorage();
     showNotification('Skills saved successfully!', 'success');
     closeSkillModal();
 }
 
-// Modified populateSkills function
-function populateSkills() {
-    if (!userProfile.skills) return;
-
-    selectedSkills.clear();
-    
-    // Collect all skills from different categories
-    Object.values(userProfile.skills).forEach(categorySkills => {
-        categorySkills.forEach(skillData => {
-            if (typeof skillData === 'string') {
-                selectedSkills.add(skillData);
-            } else {
-                selectedSkills.add(skillData.skill);
-            }
-        });
-    });
-
-    displaySelectedSkills();
-    
-    // Update suggestion buttons
-    selectedSkills.forEach(skill => {
-        const btn = document.querySelector(`[onclick="addSkill('${skill}')"]`);
-        if (btn) {
-            btn.classList.add('selected');
-        }
-    });
-}
-
-// Keep the rest of your existing code (navigation, validation, etc.)
-// but remove the old skills-related code that we've replaced
-
-function saveToLocalStorage() {
-    localStorage.setItem('userProfile', JSON.stringify(userProfile));
-}
-
-function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    if (!notification) return;
-
-    notification.textContent = message;
-    notification.className = `notification ${type}`;
-    
-    setTimeout(() => {
-        notification.className = 'notification hidden';
-    }, 3000);
-}
-// Add to your existing userProfile object
-userProfile.interests = {
-    careerInterests: [],
-    workPreferences: {
-        environment: null,
-        companySize: null,
-        careerLevel: null
-    }
-};
-
-// Global state for interests
-let selectedInterests = new Set();
-const MAX_INTERESTS = 10;
-
-// Interest Modal Functions
+// Interests Management Functions
 function openInterestModal() {
-    document.getElementById('interestModal').classList.remove('hidden');
-    updateInterestsRemaining();
+    const modal = document.getElementById('interestModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        updateInterestsRemaining();
+    }
 }
 
 function closeInterestModal() {
-    document.getElementById('interestModal').classList.add('hidden');
+    const modal = document.getElementById('interestModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
 }
 
 function handleInterestInput(value) {
@@ -284,23 +312,6 @@ function handleInterestInput(value) {
             const regex = new RegExp(`(${searchTerm})`, 'gi');
             const highlighted = btn.textContent.replace(regex, '<mark>$1</mark>');
             btn.innerHTML = highlighted + '<span>+</span>';
-        }
-    });
-}
-
-function filterInterests(category) {
-    document.querySelectorAll('.category-pill').forEach(pill => {
-        pill.classList.toggle('active', 
-            pill.textContent.toLowerCase() === category);
-    });
-
-    const suggestions = document.querySelectorAll('.interest-suggestion-btn');
-    suggestions.forEach(btn => {
-        if (category === 'all') {
-            btn.style.display = 'flex';
-        } else {
-            btn.style.display = 
-                btn.dataset.category === category ? 'flex' : 'none';
         }
     });
 }
@@ -370,99 +381,117 @@ function updateInterestsRemaining() {
     }
 }
 
-function togglePreference(type, value) {
-    // Find all buttons in the same group
-    const buttons = document.querySelectorAll(`[onclick*="togglePreference('${type}'"]`);
-    
-    // Remove active state from all buttons in group
-    buttons.forEach(btn => btn.classList.remove('active'));
-    
-    // Add active state to clicked button
-    const selectedBtn = document.querySelector(`[onclick="togglePreference('${type}', '${value}')"]`);
-    if (selectedBtn) {
-        selectedBtn.classList.add('active');
-        
-        // Update preferences in state
-        userProfile.interests.workPreferences[type] = value;
-    }
-}
-
-function validateInterests() {
-    if (selectedInterests.size === 0) {
-        showNotification('Please select at least one career interest', 'error');
-        return false;
-    }
-
-    const { environment, companySize, careerLevel } = userProfile.interests.workPreferences;
-    if (!environment || !companySize || !careerLevel) {
-        showNotification('Please select all work preferences', 'error');
-        return false;
-    }
-
-    return true;
-}
-
 function saveInterests() {
+    if (selectedInterests.size === 0) {
+        showNotification('Please select at least one interest', 'error');
+        return;
+    }
+
+    // Update user profile
     userProfile.interests.careerInterests = Array.from(selectedInterests);
+    
     saveToLocalStorage();
     showNotification('Interests saved successfully!', 'success');
     closeInterestModal();
 }
 
-function saveAndContinue() {
-    if (!validateInterests()) {
-        return;
-    }
 
-    saveInterests();
-    
-    // Generate career recommendations based on profile
-    generateRecommendations(userProfile)
-        .then(recommendations => {
-            // Save recommendations
-            localStorage.setItem('recommendations', JSON.stringify(recommendations));
-            // Redirect to recommendations page
-            showSection('recommendations');
-        })
-        .catch(error => {
-            showNotification('Error generating recommendations. Please try again.', 'error');
-        });
+// Data Management
+function loadSavedData() {
+    const savedProfile = JSON.parse(localStorage.getItem('userProfile'));
+    if (savedProfile) {
+        userProfile = savedProfile;
+        populateAllSections();
+    }
 }
 
-// Load saved interests
+function populateAllSections() {
+    populateEducation();
+    populateSkills();
+    populateExperience();
+    populateInterests();
+}
+
+function populateEducation() {
+    if (userProfile.education) {
+        const { degree, field, graduationYear, institution } = userProfile.education;
+        document.getElementById('highestDegree').value = degree || '';
+        document.getElementById('fieldOfStudy').value = field || '';
+        document.getElementById('graduationYear').value = graduationYear || '';
+        document.getElementById('institution').value = institution || '';
+    }
+}
+
+function populateSkills() {
+    selectedSkills.clear();
+    
+    if (userProfile.skills) {
+        Object.values(userProfile.skills).forEach(categorySkills => {
+            categorySkills.forEach(skillData => {
+                if (typeof skillData === 'string') {
+                    selectedSkills.add(skillData);
+                } else {
+                    selectedSkills.add(skillData.skill);
+                }
+            });
+        });
+    }
+    
+    displaySelectedSkills();
+    updateSkillButtons();
+}
+
 function populateInterests() {
+    selectedInterests.clear();
+    
     if (userProfile.interests) {
         // Load career interests
-        selectedInterests = new Set(userProfile.interests.careerInterests || []);
-        displaySelectedInterests();
-
-        // Update interest suggestion buttons
-        selectedInterests.forEach(interest => {
-            const btn = document.querySelector(`[onclick="addInterest('${interest}')"]`);
-            if (btn) {
-                btn.classList.add('selected');
-            }
-        });
+        if (userProfile.interests.careerInterests) {
+            selectedInterests = new Set(userProfile.interests.careerInterests);
+            displaySelectedInterests();
+        }
 
         // Load work preferences
         const { workPreferences } = userProfile.interests;
         if (workPreferences) {
             Object.entries(workPreferences).forEach(([type, value]) => {
                 if (value) {
-                    const btn = document.querySelector(`[onclick="togglePreference('${type}', '${value}')"]`);
-                    if (btn) {
-                        btn.classList.add('active');
-                    }
+                    const btn = document.querySelector(
+                        `.preference-btn[data-type="${type}"][data-value="${value}"]`
+                    );
+                    if (btn) btn.classList.add('selected');
                 }
             });
         }
     }
 }
 
-// Initialize interests section when loaded
-document.addEventListener('DOMContentLoaded', () => {
-    const interestsSection = document.getElementById('interests');
-    if (interestsSection) {
-        populateInterests();
-    }
+// Helper Functions
+function saveToLocalStorage() {
+    localStorage.setItem('userProfile', JSON.stringify(userProfile));
+}
+
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    if (!notification) return;
+
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    
+    setTimeout(() => {
+        notification.className = 'notification hidden';
+    }, 3000);
+}
+
+// Logout
+function handleLogout() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('userProfile');
+    window.location.href = 'index.html';
+}
+
+// History Management
+window.addEventListener('popstate', () => {
+    const sectionId = window.location.hash.slice(1) || 'education';
+    showSection(sectionId);
 });

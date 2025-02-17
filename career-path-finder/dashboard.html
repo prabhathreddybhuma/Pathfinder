@@ -128,342 +128,229 @@
                 </section>
 
                 <!-- Skills Section -->
-                <!-- Skills Section -->
-<section id="skills" class="content-section">
-    <div class="form-card">
-        <h3 class="form-title">Skills & Expertise</h3>
-        
-        <!-- Selected Skills Display -->
-        <div class="selected-skills-container">
-            <div class="section-header">
-                <h4 class="section-title">Your Skills</h4>
-                <span class="skills-count">0/16 skills added</span>
-            </div>
-            
-            <div id="selectedSkillsList" class="selected-skills-list">
-                <!-- Selected skills will be displayed here -->
-            </div>
-            
-            <button type="button" class="add-skill-btn" onclick="openSkillModal()">
-                <span class="btn-icon">+</span>
-                Add Skill
-            </button>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="form-actions">
-            <button type="button" class="secondary-button" onclick="prevSection()">Back</button>
-            <button type="button" class="primary-button" onclick="saveAndContinue()">Save & Continue</button>
-        </div>
-    </div>
-</section>
-
-<!-- Skills Modal -->
-<div id="skillModal" class="modal hidden">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Add Skills</h3>
-            <button class="close-btn" onclick="closeSkillModal()">×</button>
-        </div>
-        
-        <div class="modal-body">
-            <!-- Search Input -->
-            <div class="skill-input-wrapper">
-                <div class="search-input">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" 
-                           id="skillInput" 
-                           placeholder="Search skills (ex: Data Analysis)" 
-                           oninput="handleSkillInput(this.value)">
-                </div>
-                <span class="skills-remaining">You can add 16 more skills</span>
-            </div>
-
-            <!-- Categories -->
-            <div class="skill-categories">
-                <h4>Skill Categories</h4>
-                <div class="category-pills">
-                    <button class="category-pill active" onclick="filterSkillsByCategory('all')">All</button>
-                    <button class="category-pill" onclick="filterSkillsByCategory('technical')">Technical</button>
-                    <button class="category-pill" onclick="filterSkillsByCategory('business')">Business</button>
-                    <button class="category-pill" onclick="filterSkillsByCategory('marketing')">Marketing</button>
-                    <button class="category-pill" onclick="filterSkillsByCategory('design')">Design</button>
-                </div>
-            </div>
-
-            <!-- Suggested Skills -->
-            <div class="suggested-skills">
-                <h4>Suggested Skills</h4>
-                <div class="skill-suggestions">
-                    <!-- Technical Skills -->
-                    <button class="skill-suggestion-btn" data-category="technical" onclick="addSkill('Python Programming')">
-                        Python Programming <span>+</span>
-                    </button>
-                    <button class="skill-suggestion-btn" data-category="technical" onclick="addSkill('Data Analysis')">
-                        Data Analysis <span>+</span>
-                    </button>
-                    <button class="skill-suggestion-btn" data-category="technical" onclick="addSkill('Machine Learning')">
-                        Machine Learning <span>+</span>
-                    </button>
-
-                    <!-- Business Skills -->
-                    <button class="skill-suggestion-btn" data-category="business" onclick="addSkill('Project Management')">
-                        Project Management <span>+</span>
-                    </button>
-                    <button class="skill-suggestion-btn" data-category="business" onclick="addSkill('Business Strategy')">
-                        Business Strategy <span>+</span>
-                    </button>
-                    <button class="skill-suggestion-btn" data-category="business" onclick="addSkill('Team Leadership')">
-                        Team Leadership <span>+</span>
-                    </button>
-
-                    <!-- Marketing Skills -->
-                    <button class="skill-suggestion-btn" data-category="marketing" onclick="addSkill('Digital Marketing')">
-                        Digital Marketing <span>+</span>
-                    </button>
-                    <button class="skill-suggestion-btn" data-category="marketing" onclick="addSkill('Content Strategy')">
-                        Content Strategy <span>+</span>
-                    </button>
-                    <button class="skill-suggestion-btn" data-category="marketing" onclick="addSkill('SEO')">
-                        SEO <span>+</span>
-                    </button>
-
-                    <!-- Design Skills -->
-                    <button class="skill-suggestion-btn" data-category="design" onclick="addSkill('UI/UX Design')">
-                        UI/UX Design <span>+</span>
-                    </button>
-                    <button class="skill-suggestion-btn" data-category="design" onclick="addSkill('Graphic Design')">
-                        Graphic Design <span>+</span>
-                    </button>
-                    <button class="skill-suggestion-btn" data-category="design" onclick="addSkill('Web Design')">
-                        Web Design <span>+</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-footer">
-            <button class="secondary-button" onclick="closeSkillModal()">Cancel</button>
-            <button class="primary-button" onclick="saveSkills()">Add Selected Skills</button>
-        </div>
-    </div>
-</div>
-                 <!-- Experience Section -->
-        <section id="experience" class="content-section">
-            <div class="form-card">
-                <h3 class="form-title">Work Experience</h3>
-                <form id="experienceForm" class="dashboard-form">
-                    <div id="experienceList">
-                        <div class="experience-entry">
-                            <div class="form-group">
-                                <label for="jobTitle">Job Title</label>
-                                <input type="text" id="jobTitle" placeholder="e.g., Software Developer" required>
+                <section id="skills" class="content-section">
+                    <div class="form-card">
+                        <h3 class="form-title">Skills & Expertise</h3>
+                        
+                        <div class="selected-skills-container">
+                            <div class="section-header">
+                                <h4 class="section-title">Your Skills</h4>
+                                <span class="skills-count">0/16 skills added</span>
                             </div>
-                            <div class="form-group">
-                                <label for="company">Company</label>
-                                <input type="text" id="company" placeholder="Company name" required>
+                            
+                            <div id="selectedSkillsList" class="selected-skills-list">
+                                <!-- Selected skills will be displayed here -->
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="startDate">Start Date</label>
-                                    <input type="month" id="startDate" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="endDate">End Date</label>
-                                    <input type="month" id="endDate">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="currentJob">
-                                        <label for="currentJob">I currently work here</label>
+                            
+                            <button type="button" class="add-skill-btn" onclick="openSkillModal()">
+                                <span class="btn-icon">+</span>
+                                Add Skill
+                            </button>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="secondary-button" onclick="prevSection()">Back</button>
+                            <button type="button" class="primary-button" onclick="nextSection()">Save & Continue</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Experience Section -->
+                <section id="experience" class="content-section">
+                    <div class="form-card">
+                        <h3 class="form-title">Work Experience</h3>
+                        <form id="experienceForm" class="dashboard-form">
+                            <div id="experienceList">
+                                <div class="experience-entry">
+                                    <div class="form-group">
+                                        <label for="jobTitle">Job Title</label>
+                                        <input type="text" id="jobTitle" placeholder="e.g., Software Developer" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="company">Company</label>
+                                        <input type="text" id="company" placeholder="Company name" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="startDate">Start Date</label>
+                                            <input type="month" id="startDate" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="endDate">End Date</label>
+                                            <input type="month" id="endDate">
+                                            <div class="checkbox-group">
+                                                <input type="checkbox" id="currentJob">
+                                                <label for="currentJob">I currently work here</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="jobDescription">Description</label>
+                                        <textarea id="jobDescription" rows="4" placeholder="Describe your responsibilities and achievements"></textarea>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="jobDescription">Description</label>
-                                <textarea id="jobDescription" rows="4" placeholder="Describe your responsibilities and achievements"></textarea>
+                            <button type="button" class="add-experience-btn" onclick="addExperienceEntry()">
+                                + Add Another Experience
+                            </button>
+                            <div class="form-actions">
+                                <button type="button" class="secondary-button" onclick="prevSection()">Back</button>
+                                <button type="submit" class="primary-button">Save & Continue</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Interests Section -->
+                <section id="interests" class="content-section">
+                    <div class="form-card">
+                        <h3 class="form-title">Career Interests</h3>
+                        
+                        <div class="selected-interests-container">
+                            <div class="section-header">
+                                <h4 class="section-title">Your Career Interests</h4>
+                                <span class="interests-count">0/10 interests added</span>
+                            </div>
+                            
+                            <div id="selectedInterestsList" class="selected-interests-list">
+                                <!-- Selected interests will be displayed here -->
+                            </div>
+                            
+                            <button type="button" class="add-interest-btn" onclick="openInterestModal()">
+                                <span class="btn-icon">+</span>
+                                Add Interest
+                            </button>
+                        </div>
+
+                        <!-- Work Preferences -->
+                        <div class="work-preferences">
+                            <h3>Work Environment</h3>
+                            <div class="preference-buttons">
+                                <button class="preference-btn" data-type="environment" data-value="remote" onclick="togglePreference('environment', 'remote')">
+                                    🏠 Remote
+                                </button>
+                                <button class="preference-btn" data-type="environment" data-value="hybrid" onclick="togglePreference('environment', 'hybrid')">
+                                    🏢 Hybrid
+                                </button>
+                                <button class="preference-btn" data-type="environment" data-value="onsite" onclick="togglePreference('environment', 'onsite')">
+                                    🏢 On-site
+                                </button>
+                            </div>
+
+                            <h3>Company Size</h3>
+                            <div class="preference-buttons">
+                                <button class="preference-btn" data-type="companySize" data-value="startup" onclick="togglePreference('companySize', 'startup')">
+                                    🚀 Startup
+                                </button>
+                                <button class="preference-btn" data-type="companySize" data-value="midsize" onclick="togglePreference('companySize', 'midsize')">
+                                    📈 Mid-size
+                                </button>
+                                <button class="preference-btn" data-type="companySize" data-value="enterprise" onclick="togglePreference('companySize', 'enterprise')">
+                                    🏢 Enterprise
+                                </button>
+                            </div>
+
+                            <h3>Career Level</h3>
+                            <div class="preference-buttons">
+                                <button class="preference-btn" data-type="careerLevel" data-value="entry" onclick="togglePreference('careerLevel', 'entry')">
+                                    🌱 Entry Level
+                                </button>
+                                <button class="preference-btn" data-type="careerLevel" data-value="mid" onclick="togglePreference('careerLevel', 'mid')">
+                                    💼 Mid Level
+                                </button>
+                                <button class="preference-btn" data-type="careerLevel" data-value="senior" onclick="togglePreference('careerLevel', 'senior')">
+                                    ⭐ Senior Level
+                                </button>
                             </div>
                         </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="secondary-button" onclick="prevSection()">Back</button>
+                            <button type="button" class="primary-button" onclick="completeProfile()">Complete Profile</button>
+                        </div>
                     </div>
-                    <button type="button" class="add-experience-btn" onclick="addExperienceEntry()">
-                        + Add Another Experience
-                    </button>
-                    <div class="form-actions">
-                        <button type="button" class="secondary-button" onclick="prevSection()">Back</button>
-                        <button type="submit" class="primary-button">Save & Continue</button>
-                    </div>
-                </form>
+                </section>
             </div>
-        </section>
-        <!-- Interests Section -->
-<section id="interests" class="content-section">
-    <div class="form-card">
-        <h3 class="form-title">Career Interests</h3>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Skills Modal -->
+    <div id="skillModal" class="modal hidden">
+        <div id="skillModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Skills</h3>
+                    <button class="close-btn" onclick="closeSkillModal()">×</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="skill-input-wrapper">
+                        <div class="search-input">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" 
+                                   id="skillInput" 
+                                   placeholder="Search skills (ex: Data Analysis)" 
+                                   oninput="handleSkillInput(this.value)">
+                        </div>
+                        <span class="skills-remaining">You can add 16 more skills</span>
+                    </div>
         
-        <!-- Selected Interests Display -->
-        <div class="selected-interests-container">
-            <div class="section-header">
-                <h4 class="section-title">Your Career Interests</h4>
-                <span class="interests-count">0/10 interests added</span>
-            </div>
-            
-            <div id="selectedInterestsList" class="selected-interests-list">
-                <!-- Selected interests will be displayed here -->
-            </div>
-            
-            <button type="button" class="add-interest-btn" onclick="openInterestModal()">
-                <span class="btn-icon">+</span>
-                Add Interest
-            </button>
-        </div>
-
-        <!-- Work Preferences -->
-        <div class="work-preferences">
-            <h4 class="section-title">Work Preferences</h4>
-            
-            <div class="preferences-grid">
-                <div class="preference-item">
-                    <label>Work Environment</label>
-                    <div class="toggle-group">
-                        <button class="toggle-btn" data-value="remote" onclick="togglePreference('environment', 'remote')">
-                            🏠 Remote
-                        </button>
-                        <button class="toggle-btn" data-value="hybrid" onclick="togglePreference('environment', 'hybrid')">
-                            🏢 Hybrid
-                        </button>
-                        <button class="toggle-btn" data-value="onsite" onclick="togglePreference('environment', 'onsite')">
-                            🏢 On-site
-                        </button>
+                    <div class="skill-categories">
+                        <h4>Categories</h4>
+                        <div class="category-pills">
+                            <button class="category-pill active" onclick="filterSkillsByCategory('all')">All</button>
+                            <button class="category-pill" onclick="filterSkillsByCategory('technical')">Technical</button>
+                            <button class="category-pill" onclick="filterSkillsByCategory('business')">Business</button>
+                            <button class="category-pill" onclick="filterSkillsByCategory('creative')">Creative</button>
+                        </div>
+                    </div>
+        
+                    <div class="suggested-skills">
+                        <h4>Suggested Skills</h4>
+                        <div class="skill-suggestions">
+                            <!-- Technical Skills -->
+                            <button class="skill-suggestion-btn" data-category="technical" onclick="addSkill('Python')">
+                                Python <span>+</span>
+                            </button>
+                            <button class="skill-suggestion-btn" data-category="technical" onclick="addSkill('JavaScript')">
+                                JavaScript <span>+</span>
+                            </button>
+                            <button class="skill-suggestion-btn" data-category="technical" onclick="addSkill('Data Analysis')">
+                                Data Analysis <span>+</span>
+                            </button>
+                            
+                            <!-- Business Skills -->
+                            <button class="skill-suggestion-btn" data-category="business" onclick="addSkill('Project Management')">
+                                Project Management <span>+</span>
+                            </button>
+                            <button class="skill-suggestion-btn" data-category="business" onclick="addSkill('Business Strategy')">
+                                Business Strategy <span>+</span>
+                            </button>
+                            
+                            <!-- Creative Skills -->
+                            <button class="skill-suggestion-btn" data-category="creative" onclick="addSkill('UI/UX Design')">
+                                UI/UX Design <span>+</span>
+                            </button>
+                            <button class="skill-suggestion-btn" data-category="creative" onclick="addSkill('Graphic Design')">
+                                Graphic Design <span>+</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <div class="preference-item">
-                    <label>Company Size</label>
-                    <div class="toggle-group">
-                        <button class="toggle-btn" data-value="startup" onclick="togglePreference('companySize', 'startup')">
-                            🚀 Startup
-                        </button>
-                        <button class="toggle-btn" data-value="midsize" onclick="togglePreference('companySize', 'midsize')">
-                            📈 Mid-size
-                        </button>
-                        <button class="toggle-btn" data-value="enterprise" onclick="togglePreference('companySize', 'enterprise')">
-                            🏢 Enterprise
-                        </button>
-                    </div>
-                </div>
-
-                <div class="preference-item">
-                    <label>Career Level</label>
-                    <div class="toggle-group">
-                        <button class="toggle-btn" data-value="entry" onclick="togglePreference('careerLevel', 'entry')">
-                            🌱 Entry Level
-                        </button>
-                        <button class="toggle-btn" data-value="mid" onclick="togglePreference('careerLevel', 'mid')">
-                            💼 Mid Level
-                        </button>
-                        <button class="toggle-btn" data-value="senior" onclick="togglePreference('careerLevel', 'senior')">
-                            ⭐ Senior Level
-                        </button>
-                    </div>
+        
+                <div class="modal-footer">
+                    <button class="secondary-button" onclick="closeSkillModal()">Cancel</button>
+                    <button class="primary-button" onclick="saveSkills()">Add Selected Skills</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="form-actions">
-            <button type="button" class="secondary-button" onclick="prevSection()">Back</button>
-            <button type="button" class="primary-button" onclick="saveAndContinue()">Complete Profile</button>
         </div>
     </div>
-</section>
 
-<!-- Interests Modal -->
-<div id="interestModal" class="modal hidden">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Add Career Interests</h3>
-            <button class="close-btn" onclick="closeInterestModal()">×</button>
-        </div>
-        
-        <div class="modal-body">
-            <div class="interest-input-wrapper">
-                <div class="search-input">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" 
-                           id="interestInput" 
-                           placeholder="Search career interests" 
-                           oninput="handleInterestInput(this.value)">
-                </div>
-                <span class="interests-remaining">You can add 10 more interests</span>
-            </div>
-
-            <div class="interest-categories">
-                <h4>Categories</h4>
-                <div class="category-pills">
-                    <button class="category-pill active" onclick="filterInterests('all')">All</button>
-                    <button class="category-pill" onclick="filterInterests('technology')">Technology</button>
-                    <button class="category-pill" onclick="filterInterests('business')">Business</button>
-                    <button class="category-pill" onclick="filterInterests('creative')">Creative</button>
-                    <button class="category-pill" onclick="filterInterests('healthcare')">Healthcare</button>
-                </div>
-            </div>
-
-            <div class="suggested-interests">
-                <h4>Suggested Career Paths</h4>
-                <div class="interest-suggestions">
-                    <!-- Technology -->
-                    <button class="interest-suggestion-btn" data-category="technology" onclick="addInterest('Software Development')">
-                        Software Development <span>+</span>
-                    </button>
-                    <button class="interest-suggestion-btn" data-category="technology" onclick="addInterest('Data Science')">
-                        Data Science <span>+</span>
-                    </button>
-                    <button class="interest-suggestion-btn" data-category="technology" onclick="addInterest('AI/Machine Learning')">
-                        AI/Machine Learning <span>+</span>
-                    </button>
-
-                    <!-- Business -->
-                    <button class="interest-suggestion-btn" data-category="business" onclick="addInterest('Product Management')">
-                        Product Management <span>+</span>
-                    </button>
-                    <button class="interest-suggestion-btn" data-category="business" onclick="addInterest('Business Analysis')">
-                        Business Analysis <span>+</span>
-                    </button>
-                    <button class="interest-suggestion-btn" data-category="business" onclick="addInterest('Management Consulting')">
-                        Management Consulting <span>+</span>
-                    </button>
-
-                    <!-- Creative -->
-                    <button class="interest-suggestion-btn" data-category="creative" onclick="addInterest('UX/UI Design')">
-                        UX/UI Design <span>+</span>
-                    </button>
-                    <button class="interest-suggestion-btn" data-category="creative" onclick="addInterest('Content Creation')">
-                        Content Creation <span>+</span>
-                    </button>
-                    <button class="interest-suggestion-btn" data-category="creative" onclick="addInterest('Digital Marketing')">
-                        Digital Marketing <span>+</span>
-                    </button>
-
-                    <!-- Healthcare -->
-                    <button class="interest-suggestion-btn" data-category="healthcare" onclick="addInterest('Healthcare Administration')">
-                        Healthcare Administration <span>+</span>
-                    </button>
-                    <button class="interest-suggestion-btn" data-category="healthcare" onclick="addInterest('Clinical Research')">
-                        Clinical Research <span>+</span>
-                    </button>
-                    <button class="interest-suggestion-btn" data-category="healthcare" onclick="addInterest('Health Informatics')">
-                        Health Informatics <span>+</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-footer">
-            <button class="secondary-button" onclick="closeInterestModal()">Cancel</button>
-            <button class="primary-button" onclick="saveInterests()">Add Selected Interests</button>
-        </div>
+    <!-- Interests Modal -->
+    <div id="interestModal" class="modal hidden">
+        <!-- Interests modal content -->
     </div>
-</div>
-
-    </main>
 
     <!-- Notification Component -->
     <div id="notification" class="notification hidden"></div>
