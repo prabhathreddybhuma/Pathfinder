@@ -273,84 +273,86 @@
             </div>
         </main>
     </div>
-
     <!-- Modals -->
     <!-- Skills Modal -->
     <div id="skillModal" class="modal hidden">
-        <div id="skillModal" class="modal hidden">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Add Skills</h3>
-                    <button class="close-btn" onclick="closeSkillModal()">×</button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Technical Skills</h3>
+                <button class="close-btn" onclick="closeSkillModal()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="skill-input-wrapper">
+                    <div class="search-input">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" 
+                               id="skillInput" 
+                               placeholder="Search skills (e.g., Python, React)" 
+                               oninput="searchSkills(this.value)">
+                    </div>
+                    <span class="skills-remaining">You can add 16 more skills</span>
                 </div>
-                
-                <div class="modal-body">
-                    <div class="skill-input-wrapper">
-                        <div class="search-input">
-                            <span class="search-icon">🔍</span>
-                            <input type="text" 
-                                   id="skillInput" 
-                                   placeholder="Search skills (ex: Data Analysis)" 
-                                   oninput="handleSkillInput(this.value)">
-                        </div>
-                        <span class="skills-remaining">You can add 16 more skills</span>
-                    </div>
-        
-                    <div class="skill-categories">
-                        <h4>Categories</h4>
-                        <div class="category-pills">
-                            <button class="category-pill active" onclick="filterSkillsByCategory('all')">All</button>
-                            <button class="category-pill" onclick="filterSkillsByCategory('technical')">Technical</button>
-                            <button class="category-pill" onclick="filterSkillsByCategory('business')">Business</button>
-                            <button class="category-pill" onclick="filterSkillsByCategory('creative')">Creative</button>
-                        </div>
-                    </div>
-        
-                    <div class="suggested-skills">
-                        <h4>Suggested Skills</h4>
-                        <div class="skill-suggestions">
-                            <!-- Technical Skills -->
-                            <button class="skill-suggestion-btn" data-category="technical" onclick="addSkill('Python')">
-                                Python <span>+</span>
-                            </button>
-                            <button class="skill-suggestion-btn" data-category="technical" onclick="addSkill('JavaScript')">
-                                JavaScript <span>+</span>
-                            </button>
-                            <button class="skill-suggestion-btn" data-category="technical" onclick="addSkill('Data Analysis')">
-                                Data Analysis <span>+</span>
-                            </button>
-                            
-                            <!-- Business Skills -->
-                            <button class="skill-suggestion-btn" data-category="business" onclick="addSkill('Project Management')">
-                                Project Management <span>+</span>
-                            </button>
-                            <button class="skill-suggestion-btn" data-category="business" onclick="addSkill('Business Strategy')">
-                                Business Strategy <span>+</span>
-                            </button>
-                            
-                            <!-- Creative Skills -->
-                            <button class="skill-suggestion-btn" data-category="creative" onclick="addSkill('UI/UX Design')">
-                                UI/UX Design <span>+</span>
-                            </button>
-                            <button class="skill-suggestion-btn" data-category="creative" onclick="addSkill('Graphic Design')">
-                                Graphic Design <span>+</span>
-                            </button>
-                        </div>
+
+                <div class="skill-categories">
+                    <h4>Categories</h4>
+                    <div class="category-pills">
+                        <button class="category-pill active" data-category="all" onclick="filterSkillsByCategory('all')">All</button>
+                        <button class="category-pill" data-category="programming" onclick="filterSkillsByCategory('programming')">Programming</button>
+                        <button class="category-pill" data-category="webDevelopment" onclick="filterSkillsByCategory('webDevelopment')">Web Development</button>
+                        <button class="category-pill" data-category="database" onclick="filterSkillsByCategory('database')">Database</button>
+                        <button class="category-pill" data-category="cloudServices" onclick="filterSkillsByCategory('cloudServices')">Cloud & DevOps</button>
+                        <button class="category-pill" data-category="dataScience" onclick="filterSkillsByCategory('dataScience')">Data Science</button>
                     </div>
                 </div>
-        
-                <div class="modal-footer">
-                    <button class="secondary-button" onclick="closeSkillModal()">Cancel</button>
-                    <button class="primary-button" onclick="saveSkills()">Add Selected Skills</button>
+
+                <div class="suggested-skills">
+                    <h4>Available Skills</h4>
+                    <div class="skill-suggestions">
+                        <!-- Skills will be populated dynamically -->
+                    </div>
                 </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="secondary-button" onclick="closeSkillModal()">Cancel</button>
+                <button class="primary-button" onclick="saveSkills()">Add Selected Skills</button>
             </div>
         </div>
     </div>
 
     <!-- Interests Modal -->
     <div id="interestModal" class="modal hidden">
-        <!-- Interests modal content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Career Interests</h3>
+                <button class="close-btn" onclick="closeInterestModal()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="search-input">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" 
+                           id="interestInput" 
+                           placeholder="Search interests" 
+                           oninput="searchInterests(this.value)">
+                </div>
+
+                <div class="interest-categories">
+                    <!-- Interest categories will be populated dynamically -->
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <span class="interests-remaining">You can add 10 more interests</span>
+                <div class="modal-actions">
+                    <button class="secondary-button" onclick="closeInterestModal()">Cancel</button>
+                    <button class="primary-button" onclick="saveInterests()">Save Interests</button>
+                </div>
+            </div>
+        </div>
     </div>
+
 
     <!-- Notification Component -->
     <div id="notification" class="notification hidden"></div>
