@@ -370,7 +370,109 @@ body {
     border: 1px solid var(--border-color);
     animation: fadeIn 0.3s ease;
 }
+/* Degree Dropdown Styles */
+.degree-select-container {
+    position: relative;
+    width: 100%;
+}
 
+#highestDegree {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--dark-bg);
+    border: 1px solid var(--border-color);
+    color: var(--light-text);
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding-right: 2.5rem; /* Space for the custom arrow */
+}
+
+.degree-select-container::after {
+    content: '▼';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    pointer-events: none;
+    font-size: 0.8rem;
+}
+
+#highestDegree:hover {
+    border-color: var(--primary-color);
+    background-color: var(--hover-bg);
+}
+
+#highestDegree:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(210, 255, 31, 0.1);
+}
+
+/* Dropdown Options Styling */
+#highestDegree option {
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    padding: 0.75rem;
+}
+
+#highestDegree option:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Selected Option Style */
+#highestDegree option:checked {
+    background-color: var(--primary-color);
+    color: var(--dark-bg);
+}
+
+/* Placeholder Style */
+#highestDegree option[value=""] {
+    color: var(--gray-text);
+}
+
+/* Disabled State */
+#highestDegree:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Group Label Style if needed */
+.form-group label[for="highestDegree"] {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--gray-text);
+    font-size: 0.9375rem;
+}
+
+/* Error State */
+#highestDegree.error {
+    border-color: var(--error-color);
+}
+
+/* Animation for dropdown */
+@keyframes dropdownAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #highestDegree {
+        padding: 0.875rem 1rem;
+        font-size: 0.9375rem;
+    }
+}
 /* Experience Section Styles */
 .experience-entry {
     background: var(--card-bg);
@@ -707,4 +809,474 @@ body {
         transform: translateY(0);
     }
 }
+/* Main Add Skill Button */
+.add-skill-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--darker-bg);
+    border: 1px dashed var(--border-color);
+    color: var(--primary-color);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
+}
 
+.add-skill-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.add-skill-btn:active {
+    transform: translateY(0);
+}
+
+.add-skill-btn .btn-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Selected Skills Area */
+.selected-skills-container {
+    margin-bottom: 2rem;
+}
+
+.selected-skills-list {
+    min-height: 100px;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    background: var(--darker-bg);
+}
+
+.selected-skills-list:empty::after {
+    content: 'No skills selected yet';
+    color: var(--gray-text);
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+    font-style: italic;
+}
+
+/* Skill Tags */
+.skill-tag {
+    background: var(--card-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    animation: tagAppear 0.2s ease-out;
+}
+
+.skill-tag .remove-skill {
+    color: var(--gray-text);
+    cursor: pointer;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.skill-tag .remove-skill:hover {
+    color: var(--error-color);
+    background: rgba(255, 68, 68, 0.1);
+}
+
+/* Skill Suggestions in Modal */
+.skill-suggestion-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--light-text);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    font-size: 0.9375rem;
+}
+
+.skill-suggestion-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+.skill-suggestion-btn.selected {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    border-color: var(--primary-color);
+}
+
+.skill-suggestion-btn .add-icon {
+    font-size: 1.1rem;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.skill-suggestion-btn:hover .add-icon {
+    opacity: 1;
+}
+
+.skill-suggestion-btn.selected .add-icon {
+    opacity: 1;
+    color: var(--dark-bg);
+}
+
+/* Category Pills */
+.category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.category-pill {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--darker-bg);
+    color: var(--light-text);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.category-pill:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+.category-pill.active {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    border-color: var(--primary-color);
+}
+
+/* Animations */
+@keyframes tagAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .category-pills {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .category-pill {
+        white-space: nowrap;
+    }
+    
+    .skill-suggestion-btn {
+        padding: 0.875rem;
+    }
+}
+
+/* Loading State */
+.skill-suggestion-btn.loading {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.skill-suggestion-btn.loading .add-icon {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+/* Main Add Interest Button */
+.add-interest-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--darker-bg);
+    border: 1px dashed var(--border-color);
+    color: var(--primary-color);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
+}
+
+.add-interest-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.add-interest-btn:active {
+    transform: translateY(0);
+}
+
+/* Selected Interests Area */
+.selected-interests-container {
+    margin-bottom: 2rem;
+}
+
+.selected-interests-list {
+    min-height: 100px;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    background: var(--darker-bg);
+}
+
+.selected-interests-list:empty::after {
+    content: 'No interests selected yet';
+    color: var(--gray-text);
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+    font-style: italic;
+}
+
+/* Interest Tags */
+.interest-tag {
+    background: var(--card-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    animation: tagAppear 0.2s ease-out;
+}
+
+.interest-tag .remove-interest {
+    color: var(--gray-text);
+    cursor: pointer;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.interest-tag .remove-interest:hover {
+    color: var(--error-color);
+    background: rgba(255, 68, 68, 0.1);
+}
+
+/* Interest Categories in Modal */
+.interest-category {
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.interest-category h4 {
+    color: var(--primary-color);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.interest-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+}
+
+/* Interest Option Checkboxes */
+.interest-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.interest-option:hover {
+    background: var(--hover-bg);
+}
+
+.interest-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border-color);
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    position: relative;
+    background: var(--darker-bg);
+}
+
+.interest-option input[type="checkbox"]:checked {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.interest-option input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--dark-bg);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.interest-option label {
+    color: var(--light-text);
+    font-size: 0.9375rem;
+    cursor: pointer;
+}
+
+/* Work Preferences Section */
+.work-preferences {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.work-preferences h3 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.preference-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.preference-btn {
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    color: var(--light-text);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+}
+
+.preference-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+.preference-btn.active {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    border-color: var(--primary-color);
+}
+
+.preference-btn span {
+    font-size: 1.25rem;
+}
+
+/* Animations */
+@keyframes tagAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Modal Footer */
+.modal-footer .interests-remaining {
+    color: var(--gray-text);
+    font-size: 0.875rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .interest-options {
+        grid-template-columns: 1fr;
+    }
+
+    .preference-buttons {
+        flex-direction: column;
+    }
+
+    .preference-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .interest-category {
+        padding: 1rem;
+    }
+}
+
+/* Loading State */
+.interest-option.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.interest-option.loading label::after {
+    content: '...';
+    animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+    0%, 20% { content: '.'; }
+    40%, 60% { content: '..'; }
+    80%, 100% { content: '...'; }
+}
