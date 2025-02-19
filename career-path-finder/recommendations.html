@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Recommendations - Path Finder</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/recommendations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Braah+One&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo-text">Path Finder//</h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3 class="nav-title">Profile Setup</h3>
+                    <ul class="nav-list">
+                        <li><a href="dashboard.html#education" class="nav-link">
+                            <span class="nav-icon">🎓</span>
+                            Education
+                        </a></li>
+                        <li><a href="dashboard.html#skills" class="nav-link">
+                            <span class="nav-icon">💡</span>
+                            Skills
+                        </a></li>
+                        <li><a href="dashboard.html#experience" class="nav-link">
+                            <span class="nav-icon">💼</span>
+                            Experience
+                        </a></li>
+                        <li><a href="dashboard.html#interests" class="nav-link">
+                            <span class="nav-icon">🎯</span>
+                            Interests
+                        </a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-title">Results</h3>
+                    <ul class="nav-list">
+                        <li><a href="recommendations.html" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            Career Paths
+                        </a></li>
+                        <li><a href="skills-gap.html" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            Skills Gap
+                        </a></li>
+                        <li><a href="job-matches.html" class="nav-link">
+                            <span class="nav-icon">🤝</span>
+                            Job Matches
+                        </a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- User Menu -->
+            <div class="user-menu">
+                <div class="user-info">
+                    <img src="images/avatar-placeholder.png" alt="User Avatar" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name" id="userName">User Name</span>
+                        <span class="user-email" id="userEmail">user@example.com</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">
+                    <span class="nav-icon">🚪</span>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h2 class="page-title">Career Recommendations</h2>
+                <div class="header-actions">
+                    <button class="help-btn">
+                        <span class="nav-icon">❓</span>
+                        Help
+                    </button>
+                </div>
+            </header>
+
+            <!-- Career Recommendations Content -->
+            <div class="recommendations-container">
+                <!-- Profile Match Summary -->
+                <div class="profile-match-summary">
+                    <div class="match-header">
+                        <h3>Your Profile Match</h3>
+                        <p>Based on your skills, experience, and interests</p>
+                    </div>
+                    <div class="match-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">24</span>
+                            <span class="stat-label">Matching Skills</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">3</span>
+                            <span class="stat-label">Years Experience</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">8</span>
+                            <span class="stat-label">Industry Matches</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Career Paths -->
+                <div class="top-careers">
+                    <h3>Top Career Paths for You</h3>
+                    <div class="career-cards">
+                        <!-- Career cards will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Additional Recommendations -->
+                <div class="additional-recommendations">
+                    <h3>More Career Paths to Explore</h3>
+                    <div class="recommendation-grid">
+                        <!-- Additional recommendations will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Component -->
+    <div id="notification" class="notification hidden"></div>
+
+    <script src="js/recommendations.js"></script>
+</body>
+</html>
