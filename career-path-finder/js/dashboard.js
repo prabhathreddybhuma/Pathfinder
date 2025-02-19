@@ -1,4 +1,8 @@
-// Data Structures
+/******************************************
+ * CONSTANTS & DATA STRUCTURES
+ ******************************************/
+
+// Technical Skills Data
 const technicalSkills = {
     programming: [
         "Python", "JavaScript", "Java", "C++", "C#", "Ruby", "PHP", "Swift", 
@@ -32,6 +36,7 @@ const technicalSkills = {
     ]
 };
 
+// Career Interests Data
 const careerInterests = {
     technicalRoles: [
         "Software Engineer", "Full Stack Developer", "Data Scientist",
@@ -48,6 +53,10 @@ const careerInterests = {
         "Automotive Software", "Aerospace Technology", "Green Technology"
     ]
 };
+
+// Application Constants
+const MAX_SKILLS = 16;
+const MAX_INTERESTS = 10;
 
 // Global State
 let userProfile = {
@@ -74,19 +83,21 @@ let userProfile = {
     lastUpdated: null
 };
 
-// Constants
-const MAX_SKILLS = 16;
-const MAX_INTERESTS = 10;
+// Selected Items State
 let selectedSkills = new Set();
 let selectedInterests = new Set();
 
-// Initialize Application
+/******************************************
+ * INITIALIZATION
+ ******************************************/
+
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
 
 function initializeApp() {
-    checkAuthentication();
+    if (!checkAuthentication()) return;
+    
     initializeUI();
     initializeNavigation();
     loadSavedData();
@@ -95,17 +106,15 @@ function initializeApp() {
     populateInterestsModal();
 }
 
-// Authentication Check
 function checkAuthentication() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
         window.location.href = 'index.html';
-        return;
+        return false;
     }
-    return user;
+    return true;
 }
 
-// UI Initialization
 function initializeUI() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
@@ -114,7 +123,6 @@ function initializeUI() {
     }
 }
 
-// Navigation
 function initializeNavigation() {
     const initialSection = window.location.hash.slice(1) || 'education';
     showSection(initialSection);
@@ -128,7 +136,55 @@ function initializeNavigation() {
             }
         });
     });
+
+    // Add event listener for recommendations link
+    const recommendationsLink = document.getElementById('recommendationsLink');
+    if (recommendationsLink) {
+        recommendationsLink.addEventListener('click', function(e) {
+            const userProfile = JSON.parse(localStorage.getItem('userProfile'));
+            if (!userProfile || !userProfile.metadata || !userProfile.metadata.isComplete) {
+                e.preventDefault();
+                showNotification('Please complete your profile first', 'error');
+            }
+        });
+    }
 }
+
+function attachEventListeners() {
+    // Form submissions
+    const educationForm = document.getElementById('educationForm');
+    if (educationForm) {
+        educationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (validateEducation()) {
+                saveEducation();
+                nextSection();
+            }
+        });
+    }
+
+    const experienceForm = document.getElementById('experienceForm');
+    if (experienceForm) {
+        experienceForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (validateExperience()) {
+                saveExperience();
+                nextSection();
+            }
+        });
+    }
+
+    // Modal close buttons
+    document.querySelectorAll('.close-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.closest('.modal').classList.add('hidden');
+        });
+    });
+}
+
+/******************************************
+ * NAVIGATION & SECTION MANAGEMENT
+ ******************************************/
 
 function showSection(sectionId) {
     document.querySelectorAll('.content-section').forEach(section => {
@@ -161,7 +217,118 @@ function updatePageTitle(sectionId) {
     document.getElementById('sectionTitle').textContent = titles[sectionId] || 'Dashboard';
 }
 
-// Skills Management
+function nextSection() {
+    const sections = ['education', 'skills', 'experience', 'interests'];
+    const currentSection = document.querySelector('.content-section.active');
+    const currentIndex = sections.indexOf(currentSection.id);
+    
+    if (currentIndex < sections.length - 1 && validateCurrentSection()) {
+        showSection(sections[currentIndex + 1]);
+    }
+}
+
+function prevSection() {
+    const sections = ['education', 'skills', 'experience', 'interests'];
+    const currentSection = document.querySelector('.content-section.active');
+    const currentIndex = sections.indexOf(currentSection.id);
+    
+    if (currentIndex > 0) {
+        showSection(sections[currentIndex - 1]);
+    }
+}
+
+/******************************************
+ * FORM VALIDATION
+ ******************************************/
+
+function validateCurrentSection() {
+    const currentSection = document.querySelector('.content-section.active');
+    if (!currentSection) return true;
+
+    switch (currentSection.id) {
+        case 'education':
+            return validateEducation();
+        case 'skills':
+            return validateSkills();
+        case 'experience':
+            return validateExperience();
+        case 'interests':
+            return validateInterests();
+        default:
+            return true;
+    }
+}
+
+function validateEducation() {
+    const requiredFields = ['highestDegree', 'fieldOfStudy', 'graduationYear', 'institution'];
+    const isValid = requiredFields.every(field => {
+        const element = document.getElementById(field);
+        return element && element.value.trim() !== '';
+    });
+
+    if (!isValid) {
+        showNotification('Please fill in all required education fields', 'error');
+    }
+    return isValid;
+}
+
+function validateSkills() {
+    if (selectedSkills.size === 0) {
+        showNotification('Please select at least one skill', 'error');
+        return false;
+    }
+    return true;
+}
+
+function validateExperience() {
+    const experienceEntries = document.querySelectorAll('.experience-entry');
+    if (experienceEntries.length === 0) {
+        showNotification('Please add at least one experience entry', 'error');
+        return false;
+    }
+
+    let isValid = true;
+    experienceEntries.forEach(entry => {
+        const requiredFields = ['jobTitle', 'company', 'startDate'];
+        const entryValid = requiredFields.every(field => {
+            const element = entry.querySelector(`#${field}`);
+            return element && element.value.trim() !== '';
+        });
+        if (!entryValid) isValid = false;
+    });
+
+    if (!isValid) {
+        showNotification('Please fill in all required experience fields', 'error');
+    }
+    return isValid;
+}
+
+function validateInterests() {
+    if (selectedInterests.size === 0) {
+        showNotification('Please select at least one career interest', 'error');
+        return false;
+    }
+
+    const { workPreferences } = userProfile.interests;
+    if (!workPreferences.environment || !workPreferences.companySize || !workPreferences.careerLevel) {
+        showNotification('Please select all work preferences', 'error');
+        return false;
+    }
+
+    return true;
+}
+
+function validateAllSections() {
+    return validateEducation() && 
+           validateSkills() && 
+           validateExperience() && 
+           validateInterests();
+}
+
+/******************************************
+ * SKILLS MANAGEMENT
+ ******************************************/
+
 function populateSkillsModal() {
     const skillsContainer = document.querySelector('.skill-suggestions');
     if (!skillsContainer) {
@@ -301,12 +468,21 @@ function searchSkills(searchTerm) {
     // Reset category pills if search is cleared
     if (normalizedTerm === '') {
         document.querySelector('.category-pill[data-category="all"]')?.click();
+        return;
     }
 
     buttons.forEach(btn => {
         const skillName = btn.querySelector('.skill-name').textContent.toLowerCase();
         const matches = skillName.includes(normalizedTerm);
         btn.style.display = matches ? 'flex' : 'none';
+
+        // Highlight matching text if there's a search term
+        if (matches && normalizedTerm) {
+            const regex = new RegExp(`(${normalizedTerm})`, 'gi');
+            const highlightedText = btn.querySelector('.skill-name').textContent
+                .replace(regex, '<mark>$1</mark>');
+            btn.querySelector('.skill-name').innerHTML = highlightedText;
+        }
     });
 
     // Show/hide category headers based on visible skills
@@ -320,108 +496,16 @@ function searchSkills(searchTerm) {
     });
 }
 
-// Interests Management
-function populateInterestsModal() {
-    const interestsContainer = document.querySelector('.interest-categories');
-    if (!interestsContainer) return;
-
-    interestsContainer.innerHTML = '';
-
-    Object.entries(careerInterests).forEach(([category, interests]) => {
-        const categorySection = document.createElement('div');
-        categorySection.className = 'interest-category';
-        
-        const categoryTitle = category
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^./, str => str.toUpperCase());
-        
-        categorySection.innerHTML = `
-            <h4>${categoryTitle}</h4>
-            <div class="interest-options">
-                ${interests.map(interest => `
-                    <div class="interest-option">
-                        <input type="checkbox" 
-                               id="${interest.replace(/\s+/g, '-')}"
-                               ${selectedInterests.has(interest) ? 'checked' : ''}
-                               onchange="toggleInterest('${interest}')">
-                        <label for="${interest.replace(/\s+/g, '-')}">${interest}</label>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-        
-        interestsContainer.appendChild(categorySection);
-    });
-}
-
-function toggleInterest(interest) {
-    if (selectedInterests.has(interest)) {
-        selectedInterests.delete(interest);
-    } else {
-        if (selectedInterests.size >= MAX_INTERESTS) {
-            showNotification('Maximum interests limit reached', 'error');
-            // Uncheck the checkbox
-            const checkbox = document.getElementById(interest.replace(/\s+/g, '-'));
-            if (checkbox) checkbox.checked = false;
-            return;
-        }
-        selectedInterests.add(interest);
-    }
-    
-    displaySelectedInterests();
-    updateInterestsCount();
-}
-
-function displaySelectedInterests() {
-    const interestsList = document.getElementById('selectedInterestsList');
-    const interestsCount = document.querySelector('.interests-count');
-    
-    if (!interestsList || !interestsCount) return;
-
-    interestsList.innerHTML = '';
-    interestsCount.textContent = `${selectedInterests.size}/10 interests added`;
-    
-    if (selectedInterests.size === 0) {
-        interestsList.innerHTML = '<div class="empty-state">No interests selected yet</div>';
-        return;
-    }
-    
-    selectedInterests.forEach(interest => {
-        const interestTag = document.createElement('div');
-        interestTag.className = 'interest-tag';
-        interestTag.innerHTML = `
-            ${interest}
-            <span class="remove-skill" onclick="removeInterest('${interest}')">×</span>
-        `;
-        interestsList.appendChild(interestTag);
-    });
-}
-
-function removeInterest(interest) {
-    selectedInterests.delete(interest);
-    const checkbox = document.getElementById(interest.replace(/\s+/g, '-'));
-    if (checkbox) checkbox.checked = false;
-    displaySelectedInterests();
-    updateInterestsCount();
-}
-
-// Work Preferences
-function togglePreference(type, value) {
-    document.querySelectorAll(`.preference-btn[data-type="${type}"]`)
-        .forEach(btn => btn.classList.remove('active'));
-    
-    const selectedBtn = document.querySelector(
-        `.preference-btn[data-type="${type}"][data-value="${value}"]`
-    );
-    if (selectedBtn) {
-        selectedBtn.classList.add('active');
-        userProfile.interests.workPreferences[type] = value;
-        saveToLocalStorage();
-        showNotification('Preference updated successfully');
+// Helper functions for updating the UI
+function updateSkillsCount() {
+    const remaining = MAX_SKILLS - selectedSkills.size;
+    const remainingText = document.querySelector('.skills-remaining');
+    if (remainingText) {
+        remainingText.textContent = 
+            `You can add ${remaining} more skill${remaining !== 1 ? 's' : ''}`;
     }
 }
 
-// Modal Management
 function openSkillModal() {
     const modal = document.getElementById('skillModal');
     if (modal) {
@@ -437,125 +521,6 @@ function closeSkillModal() {
     }
 }
 
-function openInterestModal() {
-    const modal = document.getElementById('interestModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        updateInterestsCount();
-    }
-}
-
-// Count Updates
-function updateSkillsCount() {
-    const remaining = MAX_SKILLS - selectedSkills.size;
-    const remainingText = document.querySelector('.skills-remaining');
-    if (remainingText) {
-        remainingText.textContent = 
-            `You can add ${remaining} more skill${remaining !== 1 ? 's' : ''}`;
-    }
-}
-
-function updateInterestsCount() {
-    const remaining = MAX_INTERESTS - selectedInterests.size;
-    const remainingText = document.querySelector('.interests-remaining');
-    if (remainingText) {
-        remainingText.textContent = 
-            `You can add ${remaining} more interest${remaining !== 1 ? 's' : ''}`;
-    }
-}
-
-// Data Validation
-function validateCurrentSection() {
-    const currentSection = document.querySelector('.content-section.active');
-    if (!currentSection) return true;
-
-    switch (currentSection.id) {
-        case 'education':
-            return validateEducation();
-        case 'skills':
-            return validateSkills();
-        case 'experience':
-            return validateExperience();
-        case 'interests':
-            return validateInterests();
-        default:
-            return true;
-    }
-}
-
-function validateEducation() {
-    const requiredFields = ['highestDegree', 'fieldOfStudy', 'graduationYear', 'institution'];
-    const isValid = requiredFields.every(field => {
-        const element = document.getElementById(field);
-        return element && element.value.trim() !== '';
-    });
-
-    if (!isValid) {
-        showNotification('Please fill in all required education fields', 'error');
-    }
-    return isValid;
-}
-
-function validateSkills() {
-    if (selectedSkills.size === 0) {
-        showNotification('Please select at least one skill', 'error');
-        return false;
-    }
-    return true;
-}
-
-function validateExperience() {
-    const experienceEntries = document.querySelectorAll('.experience-entry');
-    if (experienceEntries.length === 0) {
-        showNotification('Please add at least one experience entry', 'error');
-        return false;
-    }
-
-    let isValid = true;
-    experienceEntries.forEach(entry => {
-        const requiredFields = ['jobTitle', 'company', 'startDate'];
-        const entryValid = requiredFields.every(field => {
-            const element = entry.querySelector(`#${field}`);
-            return element && element.value.trim() !== '';
-        });
-        if (!entryValid) isValid = false;
-    });
-
-    if (!isValid) {
-        showNotification('Please fill in all required experience fields', 'error');
-    }
-    return isValid;
-}
-
-function validateInterests() {
-    if (selectedInterests.size === 0) {
-        showNotification('Please select at least one career interest', 'error');
-        return false;
-    }
-
-    const { workPreferences } = userProfile.interests;
-    if (!workPreferences.environment || !workPreferences.companySize || !workPreferences.careerLevel) {
-        showNotification('Please select all work preferences', 'error');
-        return false;
-    }
-
-    return true;
-}
-
-// Save Functions
-function saveEducation() {
-    const education = {
-        degree: document.getElementById('highestDegree').value,
-        field: document.getElementById('fieldOfStudy').value,
-        graduationYear: document.getElementById('graduationYear').value,
-        institution: document.getElementById('institution').value
-    };
-
-    userProfile.education = education;
-    saveToLocalStorage();
-    showNotification('Education details saved successfully');
-}
-
 function saveSkills() {
     userProfile.skills.technical = Array.from(selectedSkills).map(skill => ({
         name: skill,
@@ -567,195 +532,3 @@ function saveSkills() {
     showNotification('Skills saved successfully');
     closeSkillModal();
 }
-
-function saveInterests() {
-    userProfile.interests.careerInterests = Array.from(selectedInterests).map(interest => ({
-        name: interest,
-        category: determineInterestCategory(interest)
-    }));
-
-    saveToLocalStorage();
-    showNotification('Interests saved successfully');
-    closeInterestModal();
-}
-
-function saveExperience() {
-    const experiences = [];
-    document.querySelectorAll('.experience-entry').forEach(entry => {
-        experiences.push({
-            jobTitle: entry.querySelector('#jobTitle').value,
-            company: entry.querySelector('#company').value,
-            startDate: entry.querySelector('#startDate').value,
-            endDate: entry.querySelector('#endDate').value,
-            currentJob: entry.querySelector('#currentJob').checked,
-            description: entry.querySelector('#jobDescription').value
-        });
-    });
-
-    userProfile.experience = experiences;
-    saveToLocalStorage();
-    showNotification('Experience details saved successfully');
-}
-
-// Data Management
-function saveToLocalStorage() {
-    userProfile.lastUpdated = new Date().toISOString();
-    localStorage.setItem('userProfile', JSON.stringify(userProfile));
-}
-
-function loadSavedData() {
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-        try {
-            userProfile = JSON.parse(savedProfile);
-            populateAllSections();
-        } catch (error) {
-            console.error('Error loading profile data:', error);
-            showNotification('Error loading profile data', 'error');
-        }
-    }
-}
-
-function populateAllSections() {
-    populateEducation();
-    populateSkills();
-    populateExperience();
-    populateInterests();
-}
-
-// Helper Functions
-function determineSkillCategory(skill) {
-    for (const [category, skills] of Object.entries(technicalSkills)) {
-        if (skills.includes(skill)) return category;
-    }
-    return 'other';
-}
-
-function determineInterestCategory(interest) {
-    for (const [category, interests] of Object.entries(careerInterests)) {
-        if (interests.includes(interest)) return category;
-    }
-    return 'other';
-}
-
-// Navigation Helpers
-function nextSection() {
-    const sections = ['education', 'skills', 'experience', 'interests'];
-    const currentSection = document.querySelector('.content-section.active');
-    const currentIndex = sections.indexOf(currentSection.id);
-    
-    if (currentIndex < sections.length - 1 && validateCurrentSection()) {
-        showSection(sections[currentIndex + 1]);
-    }
-}
-
-function prevSection() {
-    const sections = ['education', 'skills', 'experience', 'interests'];
-    const currentSection = document.querySelector('.content-section.active');
-    const currentIndex = sections.indexOf(currentSection.id);
-    
-    if (currentIndex > 0) {
-        showSection(sections[currentIndex - 1]);
-    }
-}
-
-function completeProfile() {
-    if (!validateAllSections()) {
-        showNotification('Please complete all required sections', 'error');
-        return;
-    }
-
-    // Prepare final profile data
-    const finalProfile = {
-        ...userProfile,
-        metadata: {
-            completedAt: new Date().toISOString(),
-            version: '1.0'
-        }
-    };
-
-    // Save final profile
-    localStorage.setItem('userProfile', JSON.stringify(finalProfile));
-    showNotification('Profile completed successfully!', 'success');
-    
-    // Redirect to recommendations
-    setTimeout(() => {
-        showSection('recommendations');
-    }, 1500);
-}
-
-function validateAllSections() {
-    return validateEducation() && 
-           validateSkills() && 
-           validateExperience() && 
-           validateInterests();
-}
-
-// Notification System
-function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    if (!notification) return;
-
-    notification.textContent = message;
-    notification.className = `notification ${type}`;
-    
-    setTimeout(() => {
-        notification.className = 'notification hidden';
-    }, 3000);
-}
-
-// Handle Logout
-function handleLogout() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('userProfile');
-    window.location.href = 'index.html';
-}
-
-// Add dynamic styles
-const style = document.createElement('style');
-style.textContent = `
-    .skill-category-header {
-        color: var(--primary-color);
-        font-size: 1rem;
-        font-weight: 500;
-        margin: 1rem 0 0.5rem;
-        padding: 0.5rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .skill-suggestion-btn {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        padding: 0.75rem 1rem;
-        margin: 0.25rem 0;
-        background: var(--darker-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        color: var(--light-text);
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .skill-suggestion-btn:hover {
-        background: var(--hover-bg);
-        border-color: var(--primary-color);
-    }
-
-    .skill-suggestion-btn.selected {
-        background: var(--primary-color);
-        color: var(--dark-bg);
-        border-color: var(--primary-color);
-    }
-
-    .skill-suggestion-btn .add-icon {
-        font-size: 1.2rem;
-        opacity: 0.7;
-    }
-
-    .skill-suggestion-btn:hover .add-icon {
-        opacity: 1;
-    }
-`;
-document.head.appendChild(style);

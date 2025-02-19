@@ -42,18 +42,24 @@
                 <div class="nav-section">
                     <h3 class="nav-title">Results</h3>
                     <ul class="nav-list">
-                        <li><a href="#" class="nav-link" data-section="recommendations">
-                            <span class="nav-icon">📊</span>
-                            Career Paths
-                        </a></li>
-                        <li><a href="#" class="nav-link" data-section="skills-gap">
-                            <span class="nav-icon">📈</span>
-                            Skills Gap
-                        </a></li>
-                        <li><a href="#" class="nav-link" data-section="job-matches">
-                            <span class="nav-icon">🤝</span>
-                            Job Matches
-                        </a></li>
+                        <li>
+                            <a href="recommendations.html" class="nav-link" id="recommendationsLink">
+                                <span class="nav-icon">📊</span>
+                                Career Paths
+                            </a>
+                        </li>
+                        <li>
+                            <a href="skills-gap.html" class="nav-link">
+                                <span class="nav-icon">📈</span>
+                                Skills Gap
+                            </a>
+                        </li>
+                        <li>
+                            <a href="job-matches.html" class="nav-link">
+                                <span class="nav-icon">🤝</span>
+                                Job Matches
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -272,13 +278,16 @@
 
                         <div class="form-actions">
                             <button type="button" class="secondary-button" onclick="prevSection()">Back</button>
-                            <button type="button" class="primary-button" onclick="completeProfile()">Complete Profile</button>
+                            <button type="button" class="primary-button" id="completeProfileBtn" onclick="completeProfile()">
+                                Complete Profile & View Recommendations
+                            </button>
                         </div>
                     </div>
                 </section>
             </div>
         </main>
     </div>
+
     <!-- Modals -->
     <!-- Skills Modal -->
     <div id="skillModal" class="modal hidden">
@@ -359,10 +368,37 @@
         </div>
     </div>
 
-
     <!-- Notification Component -->
     <div id="notification" class="notification hidden"></div>
 
+    <!-- Scripts -->
+    <script>
+        // Check user authentication on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add event listener for recommendations link
+            const recommendationsLink = document.getElementById('recommendationsLink');
+            if (recommendationsLink) {
+                recommendationsLink.addEventListener('click', function(e) {
+                    const userProfile = JSON.parse(localStorage.getItem('userProfile'));
+                    if (!userProfile || !userProfile.metadata || !userProfile.metadata.isComplete) {
+                        e.preventDefault();
+                        showNotification('Please complete your profile first', 'error');
+                    }
+                });
+            }
+
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Initialize user info
+            document.getElementById('userName').textContent = user.fullName || 'User';
+            document.getElementById('userEmail').textContent = user.email || '';
+        });
+    </script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>
