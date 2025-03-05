@@ -24,7 +24,7 @@
                             <span class="nav-icon">🎓</span>
                             Education
                         </a></li>
-                        <li><a href="#" class="nav-link" data-section="skills">
+                        <li><a href="#" class="nav-link active" data-section="skills">
                             <span class="nav-icon">💡</span>
                             Skills
                         </a></li>
@@ -81,7 +81,8 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-content" >
+         <div id="notification">
             <!-- Header -->
             <header class="content-header">
                 <h2 class="page-title" id="sectionTitle">Education Background</h2>
@@ -140,7 +141,7 @@
                 </section>
 
                 <!-- Skills Section -->
-                <section id="skills" class="content-section">
+                <section id="skills" class="content-section active">
                     <div class="form-card">
                         <h3 class="form-title">Skills & Expertise</h3>
                         
@@ -165,13 +166,14 @@
                             <button type="button" class="primary-button" onclick="nextSection()">Save & Continue</button>
                         </div>
                     </div>
+                    <button class="text-red-600">test</button>
                 </section>
 
                 <!-- Experience Section -->
                 <section id="experience" class="content-section">
                     <div class="form-card">
                         <h3 class="form-title">Work Experience</h3>
-                        <form id="experienceForm" class="dashboard-form">
+                        <form id="experienceForm" class="dashboard-form" onsubmit="return validateAndNext()">
                             <div id="experienceList">
                                 <div class="experience-entry">
                                     <div class="form-group">
@@ -285,6 +287,7 @@
                     </div>
                 </section>
             </div>
+        </div>
         </main>
     </div>
 

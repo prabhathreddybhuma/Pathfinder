@@ -28,6 +28,8 @@ body {
     line-height: 1.5;
 }
 
+
+
 /* Dashboard Layout */
 .dashboard-layout {
     display: flex;
@@ -1279,4 +1281,11 @@ body {
     0%, 20% { content: '.'; }
     40%, 60% { content: '..'; }
     80%, 100% { content: '...'; }
+}
+.form-card {
+    display: none;
+}
+
+.content-section.active .form-card {
+    display: block; /* Ensures only the active section's form-card is visible */
 }
