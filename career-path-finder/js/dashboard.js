@@ -261,6 +261,49 @@ function validateCurrentSection() {
             return true;
     }
 }
+// Education Form Submission
+document.getElementById('educationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const educationData = {
+      degree: document.getElementById('highestDegree').value,
+      field: document.getElementById('fieldOfStudy').value,
+      graduationYear: document.getElementById('graduationYear').value,
+      institution: document.getElementById('institution').value
+    };
+  
+    try {
+      const response = await fetch('/api/users/education', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(educationData)
+      });
+  
+      if (!response.ok) throw new Error('Failed to save education');
+      
+      const savedEducation = await response.json();
+      updateEducationUI(savedEducation);
+      showNotification('Education saved successfully!', 'success');
+      
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  });
+  
+  // Update education display
+  function updateEducationUI(education) {
+    const educationSection = document.querySelector('#education .selected-items');
+    educationSection.innerHTML = education.map(edu => `
+      <div class="education-item">
+        <h4>${edu.degree} in ${edu.field}</h4>
+        <p>${edu.institution} • ${edu.graduationYear}</p>
+      </div>
+    `).join('');
+  }
+  
 
 function validateEducation() {
     const requiredFields = ['highestDegree', 'fieldOfStudy', 'graduationYear', 'institution'];
@@ -274,6 +317,47 @@ function validateEducation() {
     }
     return isValid;
 }
+// Save skills to backend
+async function saveSkillsToBackend(skills) {
+    try {
+      const response = await fetch('/api/users/skills', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify({ skills })
+      });
+  
+      if (!response.ok) throw new Error('Failed to save skills');
+      
+      const updatedSkills = await response.json();
+      updateSkillsUI(updatedSkills);
+      showNotification('Skills updated successfully!', 'success');
+      
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  }
+  
+  // Update skills display
+  function updateSkillsUI(skills) {
+    const skillsList = document.getElementById('selectedSkillsList');
+    const skillsCount = document.querySelector('.skills-count');
+    
+    skillsList.innerHTML = skills.map(skillCategory => `
+      <div class="skill-category">
+        <h5>${skillCategory.category}</h5>
+        ${skillCategory.skills.map(skill => `
+          <div class="skill-chip">${skill}</div>
+        `).join('')}
+      </div>
+    `).join('');
+    
+    skillsCount.textContent = `${skills.flatMap(c => c.skills).length}/16 skills added`;
+  }
+  
+
 
 function validateSkills() {
     if (selectedSkills.size === 0) {
