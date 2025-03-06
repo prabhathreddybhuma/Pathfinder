@@ -59,6 +59,8 @@ const MAX_SKILLS = 16;
 const MAX_INTERESTS = 10;
 
 // Global State
+
+
 let userProfile = {
     education: {
         degree: null,
@@ -149,6 +151,7 @@ function initializeNavigation() {
         });
     }
 }
+
 
 function attachEventListeners() {
     // Form submissions
@@ -258,6 +261,49 @@ function validateCurrentSection() {
             return true;
     }
 }
+// Education Form Submission
+document.getElementById('educationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const educationData = {
+      degree: document.getElementById('highestDegree').value,
+      field: document.getElementById('fieldOfStudy').value,
+      graduationYear: document.getElementById('graduationYear').value,
+      institution: document.getElementById('institution').value
+    };
+  
+    try {
+      const response = await fetch('/api/users/education', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(educationData)
+      });
+  
+      if (!response.ok) throw new Error('Failed to save education');
+      
+      const savedEducation = await response.json();
+      updateEducationUI(savedEducation);
+      showNotification('Education saved successfully!', 'success');
+      
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  });
+  
+  // Update education display
+  function updateEducationUI(education) {
+    const educationSection = document.querySelector('#education .selected-items');
+    educationSection.innerHTML = education.map(edu => `
+      <div class="education-item">
+        <h4>${edu.degree} in ${edu.field}</h4>
+        <p>${edu.institution} • ${edu.graduationYear}</p>
+      </div>
+    `).join('');
+  }
+  
 
 function validateEducation() {
     const requiredFields = ['highestDegree', 'fieldOfStudy', 'graduationYear', 'institution'];
@@ -271,6 +317,47 @@ function validateEducation() {
     }
     return isValid;
 }
+// Save skills to backend
+async function saveSkillsToBackend(skills) {
+    try {
+      const response = await fetch('/api/users/skills', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify({ skills })
+      });
+  
+      if (!response.ok) throw new Error('Failed to save skills');
+      
+      const updatedSkills = await response.json();
+      updateSkillsUI(updatedSkills);
+      showNotification('Skills updated successfully!', 'success');
+      
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  }
+  
+  // Update skills display
+  function updateSkillsUI(skills) {
+    const skillsList = document.getElementById('selectedSkillsList');
+    const skillsCount = document.querySelector('.skills-count');
+    
+    skillsList.innerHTML = skills.map(skillCategory => `
+      <div class="skill-category">
+        <h5>${skillCategory.category}</h5>
+        ${skillCategory.skills.map(skill => `
+          <div class="skill-chip">${skill}</div>
+        `).join('')}
+      </div>
+    `).join('');
+    
+    skillsCount.textContent = `${skills.flatMap(c => c.skills).length}/16 skills added`;
+  }
+  
+
 
 function validateSkills() {
     if (selectedSkills.size === 0) {
@@ -284,6 +371,7 @@ function validateExperience() {
     const experienceEntries = document.querySelectorAll('.experience-entry');
     if (experienceEntries.length === 0) {
         showNotification('Please add at least one experience entry', 'error');
+        alert('Please fill in all required experience fields');
         return false;
     }
 
@@ -299,6 +387,7 @@ function validateExperience() {
 
     if (!isValid) {
         showNotification('Please fill in all required experience fields', 'error');
+        alert('Please fill in all required experience fields');
     }
     return isValid;
 }
@@ -436,29 +525,66 @@ function removeSkill(skill) {
     displaySelectedSkills();
     updateSkillsCount();
 }
-
 function filterSkillsByCategory(category) {
-    const buttons = document.querySelectorAll('.skill-suggestion-btn');
-    const headers = document.querySelectorAll('.skill-category-header');
-    
-    // Update category pills
-    document.querySelectorAll('.category-pill').forEach(pill => {
-        pill.classList.toggle('active', pill.getAttribute('data-category') === category);
+    const skillsContainer = document.querySelector('.skill-suggestions');
+    skillsContainer.innerHTML = ''; // Clear existing content
+
+    // Get the skills array for the selected category
+    const categorySkills = technicalSkills[category] || [];
+
+    // Create skill buttons for each skill in the category
+    categorySkills.forEach(skill => {
+        const isSelected = selectedSkills.has(skill);
+        const skillButton = document.createElement('button');
+        skillButton.className = `skill-suggestion-btn ${isSelected ? 'selected' : ''}`;
+        skillButton.innerHTML = `
+            <span class="skill-name">${skill}</span>
+            <span class="add-icon">${isSelected ? '✓' : '+'}</span>
+        `;
+        
+        // Add click handler
+        skillButton.addEventListener('click', () => addSkill(skill, category));
+        
+        skillsContainer.appendChild(skillButton);
     });
 
-    if (category === 'all') {
-        buttons.forEach(btn => btn.style.display = 'flex');
-        headers.forEach(header => header.style.display = 'block');
-    } else {
-        buttons.forEach(btn => {
-            btn.style.display = btn.getAttribute('data-category') === category ? 'flex' : 'none';
-        });
-        headers.forEach(header => {
-            const shouldShow = header.textContent.toLowerCase().includes(category.toLowerCase());
-            header.style.display = shouldShow ? 'block' : 'none';
-        });
-    }
+    // Update category pill states
+    document.querySelectorAll('.category-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.category === category);
+    });
 }
+
+// Modified populateSkillsModal to handle initial load
+function populateSkillsModal() {
+    const skillsContainer = document.querySelector('.skill-suggestions');
+    skillsContainer.innerHTML = '';
+    
+    // Create category sections
+    Object.entries(technicalSkills).forEach(([category, skills]) => {
+        // Create category header
+        const categoryHeader = document.createElement('div');
+        categoryHeader.className = 'skill-category-header';
+        categoryHeader.textContent = category
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, str => str.toUpperCase());
+        
+        skillsContainer.appendChild(categoryHeader);
+
+        // Create skill buttons
+        skills.forEach(skill => {
+            const isSelected = selectedSkills.has(skill);
+            const skillButton = document.createElement('button');
+            skillButton.className = `skill-suggestion-btn ${isSelected ? 'selected' : ''}`;
+            skillButton.innerHTML = `
+                <span class="skill-name">${skill}</span>
+                <span class="add-icon">${isSelected ? '✓' : '+'}</span>
+            `;
+            skillButton.addEventListener('click', () => addSkill(skill, category));
+            skillsContainer.appendChild(skillButton);
+        });
+    });
+}
+
 
 function searchSkills(searchTerm) {
     const normalizedTerm = searchTerm.toLowerCase().trim();
@@ -532,3 +658,156 @@ function saveSkills() {
     showNotification('Skills saved successfully');
     closeSkillModal();
 }
+//experience section
+function addExperienceEntry() {
+    if (!validateExperience()) {
+        showNotification('Please fill in all required fields for the current experience entry', 'error'); // Don't add a new entry if the current one isn't valid
+    return;
+    }
+
+    const experienceList = document.getElementById('experienceList');
+    const newEntry = document.createElement('div');
+    newEntry.className = 'experience-entry';
+    newEntry.innerHTML = `
+        <div class="form-group">
+            <label for="jobTitle">Job Title</label>
+            <input type="text" id="jobTitle" placeholder="e.g., Software Developer" required>
+        </div>
+        <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" placeholder="Company name" required>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="month" id="startDate" required>
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input type="month" id="endDate">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="currentJob">
+                    <label for="currentJob">I currently work here</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="jobDescription">Description</label>
+            <textarea id="jobDescription" rows="4" placeholder="Describe your responsibilities and achievements"></textarea>
+        </div>
+    `;
+
+    experienceList.appendChild(newEntry);
+
+    // Update IDs to make them unique
+    updateExperienceEntryIds();
+}
+
+function updateExperienceEntryIds() {
+    const entries = document.querySelectorAll('.experience-entry');
+    entries.forEach((entry, index) => {
+        entry.querySelectorAll('[id]').forEach(element => {
+            element.id = `${element.id}_${index}`;
+        });
+        entry.querySelectorAll('label').forEach(label => {
+            if (label.htmlFor) {
+                label.htmlFor = `${label.htmlFor}_${index}`;
+            }
+        });
+    });
+}
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const sections = document.querySelectorAll(".content-section");
+    let currentSectionIndex = 0;
+
+    function showSection(index) {
+        sections.forEach((section, i) => {
+            section.classList.toggle("active", i === index);
+        });
+    }
+
+    function validateForm(form) {
+        return form.checkValidity(); // Uses HTML5 validation
+    }
+
+    function nextSection(event) {
+        event.preventDefault(); // Prevent actual form submission
+
+        const currentSection = sections[currentSectionIndex];
+        const form = currentSection.querySelector("form");
+
+        if (form && !validateForm(form)) {
+            form.reportValidity(); // Show validation errors
+            return;
+        }
+
+        if (currentSectionIndex < sections.length - 1) {
+            currentSectionIndex++;
+            showSection(currentSectionIndex);
+        }
+    }
+
+    function prevSection() {
+        if (currentSectionIndex > 0) {
+            currentSectionIndex--;
+            showSection(currentSectionIndex);
+        }
+    }
+
+    // Attach event listeners to each "Save & Continue" button
+    document.querySelectorAll(".primary-button").forEach((btn) => {
+        btn.addEventListener("click", nextSection);
+    });
+
+    // Attach event listeners to "Back" buttons
+    document.querySelectorAll(".secondary-button").forEach((btn) => {
+        btn.addEventListener("click", prevSection);
+    });
+
+    // Initially show the first section
+    showSection(currentSectionIndex);
+});
+function showSection(sectionId) {
+    // Hide all content sections
+    const contentSections = document.querySelectorAll('.content-section');
+    contentSections.forEach(section => {
+        section.classList.remove('active');
+    });
+
+    // Show the selected section
+    const selectedSection = document.getElementById(sectionId);
+    if (selectedSection) {
+        selectedSection.classList.add('active');
+    }
+
+    // Update the page title
+    const sectionTitleElement = document.getElementById('sectionTitle');
+    if (sectionTitleElement) {
+        sectionTitleElement.textContent = sectionId.charAt(0).toUpperCase() + sectionId.slice(1) + " Background";
+    }
+
+    // Update active link in the sidebar
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.dataset.section === sectionId) {
+            link.classList.add('active');
+        }
+    });
+}
+
+// Attach event listeners to sidebar links
+const sidebarLinks = document.querySelectorAll('.nav-link[data-section]');
+sidebarLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const sectionId = this.dataset.section;
+        showSection(sectionId);
+    });
+});
