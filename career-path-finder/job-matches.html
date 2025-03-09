@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Matches - Path Finder</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/job-matches.css">
+    <link href="https://fonts.googleapis.com/css2?family=Braah+One&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo-text">Path Finder//</h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3 class="nav-title">Profile Setup</h3>
+                    <ul class="nav-list">
+                        <li><a href="dashboard.html#education" class="nav-link">
+                            <span class="nav-icon">🎓</span>
+                            Education
+                        </a></li>
+                        <li><a href="dashboard.html#skills" class="nav-link">
+                            <span class="nav-icon">💡</span>
+                            Skills
+                        </a></li>
+                        <li><a href="dashboard.html#experience" class="nav-link">
+                            <span class="nav-icon">💼</span>
+                            Experience
+                        </a></li>
+                        <li><a href="dashboard.html#interests" class="nav-link">
+                            <span class="nav-icon">🎯</span>
+                            Interests
+                        </a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-title">Results</h3>
+                    <ul class="nav-list">
+                        <li><a href="recommendations.html" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            Career Paths
+                        </a></li>
+                        <li><a href="skills-gap.html" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            Skills Gap
+                        </a></li>
+                        <li><a href="job-matches.html" class="nav-link active">
+                            <span class="nav-icon">🤝</span>
+                            Job Matches
+                        </a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- User Menu -->
+            <div class="user-menu">
+                <div class="user-info">
+                    <img src="images/avatar-placeholder.png" alt="User Avatar" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name" id="userName">User Name</span>
+                        <span class="user-email" id="userEmail">user@example.com</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">
+                    <span class="nav-icon">🚪</span>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h2 class="page-title">Job Matches</h2>
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Search jobs...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+                    <button class="filter-btn">Filter <span class="filter-icon">⚙️</span></button>
+                </div>
+            </header>
+
+            <!-- Job Matches Content -->
+            <div class="job-matches-container">
+                <!-- Job Matches Summary -->
+                <div class="matches-summary">
+                    <div class="match-stat">
+                        <span class="stat-number">87%</span>
+                        <span class="stat-label">Match Rate</span>
+                    </div>
+                    <div class="match-info">
+                        <p>Based on your profile, we've found <strong>24 job openings</strong> that match your skills and experience.</p>
+                        <div class="match-actions">
+                            <button class="save-search-btn">Save Search</button>
+                            <button class="set-alert-btn">Set Job Alert</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="job-filters">
+                    <div class="filter-group">
+                        <label>Location</label>
+                        <select>
+                            <option value="all">All Locations</option>
+                            <option value="remote">Remote</option>
+                            <option value="us">United States</option>
+                            <option value="europe">Europe</option>
+                            <option value="asia">Asia</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Date Posted</label>
+                        <select>
+                            <option value="any">Any Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">Past Week</option>
+                            <option value="month">Past Month</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Experience Level</label>
+                        <select>
+                            <option value="all">All Levels</option>
+                            <option value="entry">Entry Level</option>
+                            <option value="mid">Mid Level</option>
+                            <option value="senior">Senior Level</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Employment Type</label>
+                        <select>
+                            <option value="all">All Types</option>
+                            <option value="fulltime">Full Time</option>
+                            <option value="parttime">Part Time</option>
+                            <option value="contract">Contract</option>
+                            <option value="freelance">Freelance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Job Listings -->
+                <div class="job-listings">
+                    <!-- Job Card 1 -->
+                    <div class="job-card">
+                        <div class="job-card-header">
+                            <img src="images/company-logo-placeholder.png" alt="Company Logo" class="company-logo">
+                            <div class="job-info">
+                                <h3 class="job-title">Senior Full Stack Developer</h3>
+                                <p class="company-name">TechCorp Inc.</p>
+                                <div class="job-meta">
+                                    <span class="job-location">📍 Remote</span>
+                                    <span class="job-type">Full-time</span>
+                                    <span class="job-posted">Posted 2 days ago</span>
+                                </div>
+                            </div>
+                            <div class="job-match">
+                                <span class="match-percentage">95%</span>
+                                <span class="match-label">Match</span>
+                            </div>
+                        </div>
+                        <div class="job-card-body">
+                            <div class="job-skills">
+                                <span class="skill-tag">React</span>
+                                <span class="skill-tag">Node.js</span>
+                                <span class="skill-tag">MongoDB</span>
+                                <span class="skill-tag">AWS</span>
+                                <span class="skill-tag">TypeScript</span>
+                            </div>
+                            <p class="job-description">
+                                We are looking for a talented Full Stack Developer to join our dynamic team. 
+                                You will be responsible for developing and maintaining web applications 
+                                using React, Node.js, and MongoDB.
+                            </p>
+                        </div>
+                        <div class="job-card-footer">
+                            <button class="view-job-btn">View Details</button>
+                            <button class="save-job-btn">Save Job</button>
+                        </div>
+                    </div>
+
+                    <!-- Job Card 2 -->
+                    <div class="job-card">
+                        <div class="job-card-header">
+                            <img src="images/company-logo-placeholder.png" alt="Company Logo" class="company-logo">
+                            <div class="job-info">
+                                <h3 class="job-title">Data Scientist</h3>
+                                <p class="company-name">DataCo Analytics</p>
+                                <div class="job-meta">
+                                    <span class="job-location">📍 San Francisco, CA</span>
+                                    <span class="job-type">Full-time</span>
+                                    <span class="job-posted">Posted 1 week ago</span>
+                                </div>
+                            </div>
+                            <div class="job-match">
+                                <span class="match-percentage">88%</span>
+                                <span class="match-label">Match</span>
+                            </div>
+                        </div>
+                        <div class="job-card-body">
+                            <div class="job-skills">
+                                <span class="skill-tag">Python</span>
+                                <span class="skill-tag">Machine Learning</span>
+                                <span class="skill-tag">SQL</span>
+                                <span class="skill-tag">TensorFlow</span>
+                                <span class="skill-tag">Data Visualization</span>
+                            </div>
+                            <p class="job-description">
+                                Join our team as a Data Scientist to help analyze complex data sets and 
+                                develop machine learning models. You will work with cross-functional 
+                                teams to solve business problems using data-driven approaches.
+                            </p>
+                        </div>
+                        <div class="job-card-footer">
+                            <button class="view-job-btn">View Details</button>
+                            <button class="save-job-btn">Save Job</button>
+                        </div>
+                    </div>
+
+                    <!-- Job Card 3 -->
+                    <div class="job-card">
+                        <div class="job-card-header">
+                            <img src="images/company-logo-placeholder.png" alt="Company Logo" class="company-logo">
+                            <div class="job-info">
+                                <h3 class="job-title">DevOps Engineer</h3>
+                                <p class="company-name">CloudScale Systems</p>
+                                <div class="job-meta">
+                                    <span class="job-location">📍 Remote</span>
+                                    <span class="job-type">Full-time</span>
+                                    <span class="job-posted">Posted 3 days ago</span>
+                                </div>
+                            </div>
+                            <div class="job-match">
+                                <span class="match-percentage">82%</span>
+                                <span class="match-label">Match</span>
+                            </div>
+                        </div>
+                        <div class="job-card-body">
+                            <div class="job-skills">
+                                <span class="skill-tag">Docker</span>
+                                <span class="skill-tag">Kubernetes</span>
+                                <span class="skill-tag">AWS</span>
+                                <span class="skill-tag">CI/CD</span>
+                                <span class="skill-tag">Terraform</span>
+                            </div>
+                            <p class="job-description">
+                                We're seeking a skilled DevOps Engineer to help build and maintain our 
+                                cloud infrastructure. You'll be responsible for automating deployment 
+                                processes and ensuring high availability of our services.
+                            </p>
+                        </div>
+                        <div class="job-card-footer">
+                            <button class="view-job-btn">View Details</button>
+                            <button class="save-job-btn">Save Job</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn">4</button>
+                    <button class="pagination-btn">5</button>
+                    <button class="pagination-btn">Next →</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Component -->
+    <div id="notification" class="notification hidden"></div>
+
+    <script src="js/job-matches.js"></script>
+</body>
+</html>

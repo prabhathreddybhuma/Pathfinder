@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills Gap Analysis - Path Finder</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/skills-gap.css">
+    <link href="https://fonts.googleapis.com/css2?family=Braah+One&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo-text">Path Finder//</h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3 class="nav-title">Profile Setup</h3>
+                    <ul class="nav-list">
+                        <li><a href="dashboard.html#education" class="nav-link">
+                            <span class="nav-icon">🎓</span>
+                            Education
+                        </a></li>
+                        <li><a href="dashboard.html#skills" class="nav-link">
+                            <span class="nav-icon">💡</span>
+                            Skills
+                        </a></li>
+                        <li><a href="dashboard.html#experience" class="nav-link">
+                            <span class="nav-icon">💼</span>
+                            Experience
+                        </a></li>
+                        <li><a href="dashboard.html#interests" class="nav-link">
+                            <span class="nav-icon">🎯</span>
+                            Interests
+                        </a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-title">Results</h3>
+                    <ul class="nav-list">
+                        <li><a href="recommendations.html" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            Career Paths
+                        </a></li>
+                        <li><a href="skills-gap.html" class="nav-link active">
+                            <span class="nav-icon">📈</span>
+                            Skills Gap
+                        </a></li>
+                        <li><a href="job-matches.html" class="nav-link">
+                            <span class="nav-icon">🤝</span>
+                            Job Matches
+                        </a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- User Menu -->
+            <div class="user-menu">
+                <div class="user-info">
+                    <img src="images/avatar-placeholder.png" alt="User Avatar" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name" id="userName">User Name</span>
+                        <span class="user-email" id="userEmail">user@example.com</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">
+                    <span class="nav-icon">🚪</span>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h2 class="page-title">Skills Gap Analysis</h2>
+                <div class="header-actions">
+                    <div class="career-select">
+                        <label for="career-path">Career Path:</label>
+                        <select id="career-path" onchange="updateSkillsGapAnalysis()">
+                            <option value="data-scientist">Data Scientist</option>
+                            <option value="full-stack">Full Stack Developer</option>
+                            <option value="devops">DevOps Engineer</option>
+                            <option value="ml-engineer">Machine Learning Engineer</option>
+                            <option value="cloud-architect">Cloud Architect</option>
+                        </select>
+                    </div>
+                    <button class="export-btn">Export Analysis</button>
+                </div>
+            </header>
+
+            <!-- Skills Gap Content -->
+            <div class="skills-gap-container">
+                <!-- Summary -->
+                <div class="gap-summary">
+                    <div class="summary-stats">
+                        <div class="summary-card">
+                            <span class="summary-value">68%</span>
+                            <span class="summary-label">Skills Match</span>
+                        </div>
+                        <div class="summary-card">
+                            <span class="summary-value">7</span>
+                            <span class="summary-label">Missing Skills</span>
+                        </div>
+                        <div class="summary-card">
+                            <span class="summary-value">5</span>
+                            <span class="summary-label">Strong Skills</span>
+                        </div>
+                    </div>
+                    <div class="summary-text">
+                        <h3>Data Scientist Career Path</h3>
+                        <p>
+                            Based on your profile, you have a strong foundation for a career as a Data Scientist. 
+                            To improve your job readiness, focus on developing the missing skills highlighted below.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Skills Gap Visualization -->
+                <div class="gap-visualization">
+                    <h3>Skills Gap Visualization</h3>
+                    <div class="visualization-chart">
+                        <div class="chart-container">
+                            <div class="chart-bar">
+                                <div class="bar-label">Python</div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 90%"></div>
+                                </div>
+                                <div class="bar-percentage">90%</div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Machine Learning</div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 75%"></div>
+                                </div>
+                                <div class="bar-percentage">75%</div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">SQL</div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 85%"></div>
+                                </div>
+                                <div class="bar-percentage">85%</div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Statistics</div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 60%"></div>
+                                </div>
+                                <div class="bar-percentage">60%</div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Deep Learning</div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 40%"></div>
+                                </div>
+                                <div class="bar-percentage">40%</div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Data Visualization</div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 70%"></div>
+                                </div>
+                                <div class="bar-percentage">70%</div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Big Data</div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 30%"></div>
+                                </div>
+                                <div class="bar-percentage">30%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills Breakdown -->
+                <div class="skills-breakdown">
+                    <div class="breakdown-section">
+                        <h3>Skills You Have</h3>
+                        <div class="skills-list">
+                            <div class="skill-item strong">
+                                <span class="skill-name">Python</span>
+                                <span class="skill-level">Advanced</span>
+                            </div>
+                            <div class="skill-item strong">
+                                <span class="skill-name">SQL</span>
+                                <span class="skill-level">Advanced</span>
+                            </div>
+                            <div class="skill-item moderate">
+                                <span class="skill-name">Machine Learning</span>
+                                <span class="skill-level">Intermediate</span>
+                            </div>
+                            <div class="skill-item moderate">
+                                <span class="skill-name">Data Visualization</span>
+                                <span class="skill-level">Intermediate</span>
+                            </div>
+                            <div class="skill-item moderate">
+                                <span class="skill-name">Statistics</span>
+                                <span class="skill-level">Intermediate</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="breakdown-section">
+                        <h3>Skills to Develop</h3>
+                        <div class="skills-list">
+                            <div class="skill-item gap">
+                                <span class="skill-name">Deep Learning</span>
+                                <span class="skill-importance">High Priority</span>
+                            </div>
+                            <div class="skill-item gap">
+                                <span class="skill-name">Big Data</span>
+                                <span class="skill-importance">High Priority</span>
+                            </div>
+                            <div class="skill-item gap">
+                                <span class="skill-name">Natural Language Processing</span>
+                                <span class="skill-importance">Medium Priority</span>
+                            </div>
+                            <div class="skill-item gap">
+                                <span class="skill-name">Cloud Computing</span>
+                                <span class="skill-importance">Medium Priority</span>
+                            </div>
+                            <div class="skill-item gap">
+                                <span class="skill-name">A/B Testing</span>
+                                <span class="skill-importance">Low Priority</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Recommendations -->
+                <div class="learning-recommendations">
+                    <h3>Learning Resources</h3>
+                    <div class="recommendation-cards">
+                        <div class="recommendation-card">
+                            <div class="card-header">
+                                <span class="resource-type">Course</span>
+                                <span class="resource-difficulty">Intermediate</span>
+                            </div>
+                            <h4>Deep Learning Specialization</h4>
+                            <p>Learn the foundations of Deep Learning and AI with practical projects.</p>
+                            <div class="card-footer">
+                                <span class="resource-provider">Coursera</span>
+                                <a href="#" class="view-resource-btn">View Course</a>
+                            </div>
+                        </div>
+                        <div class="recommendation-card">
+                            <div class="card-header">
+                                <span class="resource-type">Tutorial</span>
+                                <span class="resource-difficulty">Beginner</span>
+                            </div>
+                            <h4>Big Data with Apache Spark</h4>
+                            <p>Get started with processing large datasets using Apache Spark.</p>
+                            <div class="card-footer">
+                                <span class="resource-provider">DataCamp</span>
+                                <a href="#" class="view-resource-btn">View Tutorial</a>
+                            </div>
+                        </div>
+                        <div class="recommendation-card">
+                            <div class="card-header">
+                                <span class="resource-type">Book</span>
+                                <span class="resource-difficulty">Advanced</span>
+                            </div>
+                            <h4>Natural Language Processing with Python</h4>
+                            <p>Comprehensive guide to building NLP applications with Python.</p>
+                            <div class="card-footer">
+                                <span class="resource-provider">O'Reilly</span>
+                                <a href="#" class="view-resource-btn">View Book</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Component -->
+    <div id="notification" class="notification hidden"></div>
+
+    <script src="js/skills-gap.js"></script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+/* Skills Gap Analysis Page Styles */
+.skills-gap-container {
+    padding: 1rem 2rem;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.career-select {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.career-select label {
+    color: var(--gray-text);
+    font-size: 0.9375rem;
+}
+
+.career-select select {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--light-text);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D2FF1F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+}
+
+.career-select select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.export-btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--light-text);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.export-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+/* Gap Summary */
+.gap-summary {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+.summary-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.summary-card {
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary-color);
+}
+
+.summary-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.summary-label {
+    color: var(--gray-text);
+    font-size: 0.9375rem;
+}
+
+.summary-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.summary-text h3 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.summary-text p {
+    color: var(--gray-text);
+    line-height: 1.6;
+}
+
+/* Gap Visualization */
+.gap-visualization {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.gap-visualization h3 {
+    color: var(--light-text);
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.chart-bar {
+    display: grid;
+    grid-template-columns: 150px 1fr 50px;
+    align-items: center;
+    gap: 1rem;
+}
+
+.bar-label {
+    color: var(--light-text);
+    font-size: 0.9375rem;
+    text-align: right;
+}
+
+.bar-track {
+    height: 12px;
+    background: var(--darker-bg);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 6px;
+    transition: width 1s ease-out;
+}
+
+.bar-percentage {
+    color: var(--gray-text);
+    font-size: 0.875rem;
+}
+
+/* Animate bars on page load */
+.chart-bar .bar-fill {
+    animation: fillBar 1.5s ease-out forwards;
+}
+
+@keyframes fillBar {
+    from { width: 0; }
+    to { width: var(--fill-width); }
+}
+
+/* Skills Breakdown */
+.skills-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.breakdown-section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.breakdown-section h3 {
+    color: var(--light-text);
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.skill-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.skill-item:hover {
+    transform: translateX(5px);
+}
+
+.skill-item.strong {
+    background: rgba(210, 255, 31, 0.1);
+    border-color: var(--primary-color);
+}
+
+.skill-item.moderate {
+    background: rgba(255, 184, 77, 0.05);
+    border-color: var(--warning-color);
+}
+
+.skill-item.gap {
+    background: rgba(255, 68, 68, 0.05);
+    border-color: var(--error-color);
+}
+
+.skill-name {
+    color: var(--light-text);
+    font-size: 0.9375rem;
+}
+
+.skill-level, .skill-importance {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.skill-level {
+    background: var(--darker-bg);
+    color: var(--gray-text);
+}
+
+.skill-item.strong .skill-level {
+    color: var(--primary-color);
+}
+
+.skill-item.moderate .skill-level {
+    color: var(--warning-color);
+}
+
+.skill-importance {
+    background: var(--darker-bg);
+    color: var(--error-color);
+}
+
+/* Learning Recommendations */
+.learning-recommendations {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.learning-recommendations h3 {
+    color: var(--light-text);
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.recommendation-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.recommendation-card {
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.resource-type, .resource-difficulty {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.resource-type {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+}
+
+.resource-difficulty {
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    color: var(--gray-text);
+}
+
+.recommendation-card h4 {
+    color: var(--light-text);
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
+}
+
+.recommendation-card p {
+    color: var(--gray-text);
+    font-size: 0.875rem;
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.resource-provider {
+    color: var(--gray-text);
+    font-size: 0.8125rem;
+}
+
+.view-resource-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--light-text);
+    padding: 0.375rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.view-resource-btn:hover {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    border-color: var(--primary-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    .recommendation-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .gap-summary {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .summary-stats {
+        flex-direction: row;
+    }
+    
+    .skills-breakdown {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .skills-gap-container {
+        padding: 1rem;
+    }
+    
+    .recommendation-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-stats {
+        flex-direction: column;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .chart-bar {
+        grid-template-columns: 100px 1fr 40px;
+    }
+}
