@@ -97,35 +97,71 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
 
-function initializeApp() {
-    if (!checkAuthentication()) return;
-    
-    initializeUI();
-    initializeNavigation();
-    loadSavedData();
-    attachEventListeners();
-    populateSkillsModal();
-    populateInterestsModal();
+async function initializeApp() {
+    try {
+        // 1. Verify token validity
+        const tokenValid = await checkTokenValidity();
+        if (!tokenValid) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        // 2. Fetch user data with error handling
+        const userData = await fetchUserData();
+        if (!userData?.userDetails) {
+            throw new Error('Invalid user data structure');
+        }
+
+        // 3. Initialize UI components
+        initializeUI(userData);
+       // initializeNavigation();
+        loadSavedData();
+        
+        // 4. Set up event listeners
+        attachEventListeners();
+        populateSkillsModal();
+
+    } catch (error) {
+        console.error('Initialization failed:', error);
+        showNotification('Failed to load dashboard', 'error');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 3000);
+    }
 }
 
-function checkAuthentication() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-        window.location.href = 'index.html';
+
+async function checkTokenValidity() {
+    try {
+        const response = await fetch('http://localhost:5000/api/users/checkfortoken', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        return response.ok;
+    } catch (error) {
         return false;
     }
-    return true;
 }
 
-function initializeUI() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-        document.getElementById('userName').textContent = user.fullName || 'User';
-        document.getElementById('userEmail').textContent = user.email || '';
-    }
+async function fetchUserData() {
+    const response = await fetch('http://localhost:5000/api/users/dashboard', {
+        method: 'GET',
+        credentials: 'include'
+    });
+    
+    if (!response.ok) throw new Error('Failed to load user data');
+    return response.json();
 }
 
-function initializeNavigation() {
+function initializeUI(userData) {
+    document.getElementById('userName').textContent = 
+        `${userData.userDetails.firstName} ${userData.userDetails.lastName}`;
+    document.getElementById('userEmail').textContent = userData.userDetails.email;
+}
+
+
+
+/* function initializeNavigation() {
     const initialSection = window.location.hash.slice(1) || 'education';
     showSection(initialSection);
 
@@ -150,7 +186,7 @@ function initializeNavigation() {
             }
         });
     }
-}
+} */
 
 
 function attachEventListeners() {
@@ -261,38 +297,49 @@ function validateCurrentSection() {
             return true;
     }
 }
-// Education Form Submission
-document.getElementById('educationForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const educationData = {
-      degree: document.getElementById('highestDegree').value,
-      field: document.getElementById('fieldOfStudy').value,
-      graduationYear: document.getElementById('graduationYear').value,
-      institution: document.getElementById('institution').value
-    };
-  
-    try {
-      const response = await fetch('/api/users/education', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify(educationData)
-      });
-  
-      if (!response.ok) throw new Error('Failed to save education');
-      
-      const savedEducation = await response.json();
-      updateEducationUI(savedEducation);
-      showNotification('Education saved successfully!', 'success');
-      
-    } catch (error) {
-      showNotification(error.message, 'error');
+async function saveEducationToBackend(e) {
+        e.preventDefault();
+        console.log("✅ Form submitted!");  // Debugging Log
+        
+        if (!validateEducation()) return;  // Ensure fields are filled
+        
+        const educationData = {
+            degree: document.getElementById('highestDegree').value,
+            field: document.getElementById('fieldOfStudy').value,
+            graduationYear: document.getElementById('graduationYear').value,
+            institution: document.getElementById('institution').value
+        };
+
+        console.log("📤 Sending Data:", educationData);  // Debugging Log
+
+        try {
+            const response = await fetch('http://localhost:5000/api/users/education', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(educationData)
+            });
+
+            console.log("📩 Response status:", response.status);  // Debugging Log
+            
+            const result = await response.json();
+            console.log("📥 Response Data:", result);  // Debugging Log
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to save education');
+            }
+
+            console.log('🎉 Education details submitted successfully!');
+            updateEducationUI(result);
+            showNotification('Education saved successfully!', 'success');
+
+        } catch (error) {
+            console.error("❌ Fetch error:", error);
+            showNotification(error.message, 'error');
+        }
     }
-  });
-  
+
+
   // Update education display
   function updateEducationUI(education) {
     const educationSection = document.querySelector('#education .selected-items');
@@ -317,28 +364,41 @@ function validateEducation() {
     }
     return isValid;
 }
-// Save skills to backend
-async function saveSkillsToBackend(skills) {
+async function saveSkillsToBackend() {
     try {
-      const response = await fetch('/api/users/skills', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({ skills })
-      });
-  
-      if (!response.ok) throw new Error('Failed to save skills');
-      
-      const updatedSkills = await response.json();
-      updateSkillsUI(updatedSkills);
-      showNotification('Skills updated successfully!', 'success');
-      
+        // Convert selectedSkills Set to an array
+        const skillsArray = Array.from(selectedSkills);
+
+        console.log("Formatted skills data:", skillsArray);
+
+        const response = await fetch('http://localhost:5000/api/users/skills', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ skills: skillsArray })  // Send an array
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to save skills');
+        }
+
+        const updatedSkills = await response.json();
+        console.log("Server response:", updatedSkills);
+        
+        updateSkillsUI(updatedSkills);
+        nextSection();
+
     } catch (error) {
-      showNotification(error.message, 'error');
+        console.error('Skill save error:', error);
+        showNotification(error.message, 'error');
     }
-  }
+}
+
+
+
   
   // Update skills display
   function updateSkillsUI(skills) {
@@ -659,50 +719,148 @@ function saveSkills() {
     closeSkillModal();
 }
 //experience section
-function addExperienceEntry() {
-    if (!validateExperience()) {
-        showNotification('Please fill in all required fields for the current experience entry', 'error'); // Don't add a new entry if the current one isn't valid
-    return;
-    }
 
+
+
+
+
+
+function addExperienceEntry() {
     const experienceList = document.getElementById('experienceList');
+    const entryCount = experienceList.children.length;
+    
     const newEntry = document.createElement('div');
     newEntry.className = 'experience-entry';
     newEntry.innerHTML = `
         <div class="form-group">
-            <label for="jobTitle">Job Title</label>
-            <input type="text" id="jobTitle" placeholder="e.g., Software Developer" required>
+            <label for="jobTitle_${entryCount}">Job Title</label>
+            <input type="text" id="jobTitle_${entryCount}" name="jobTitle[]" required>
         </div>
         <div class="form-group">
-            <label for="company">Company</label>
-            <input type="text" id="company" placeholder="Company name" required>
+            <label for="company_${entryCount}">Company</label>
+            <input type="text" id="company_${entryCount}" name="company[]" required>
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label for="startDate">Start Date</label>
-                <input type="month" id="startDate" required>
+                <label for="startDate_${entryCount}">Start Date</label>
+                <input type="month" id="startDate_${entryCount}" name="startDate[]" required>
             </div>
             <div class="form-group">
-                <label for="endDate">End Date</label>
-                <input type="month" id="endDate">
+                <label for="endDate_${entryCount}">End Date</label>
+                <input type="month" id="endDate_${entryCount}" name="endDate[]">
                 <div class="checkbox-group">
-                    <input type="checkbox" id="currentJob">
-                    <label for="currentJob">I currently work here</label>
+                    <input type="checkbox" id="currentJob_${entryCount}" name="currentJob[]">
+                    <label for="currentJob_${entryCount}">I currently work here</label>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <label for="jobDescription">Description</label>
-            <textarea id="jobDescription" rows="4" placeholder="Describe your responsibilities and achievements"></textarea>
+            <label for="jobDescription_${entryCount}">Description</label>
+            <textarea id="jobDescription_${entryCount}" name="jobDescription[]"></textarea>
         </div>
     `;
 
     experienceList.appendChild(newEntry);
-
-    // Update IDs to make them unique
-    updateExperienceEntryIds();
 }
 
+/******************************************
+ * EXPERIENCE MANAGEMENT
+ ******************************************/
+async function saveExperienceToBackend(e) {
+    e.preventDefault();
+    try {
+        // Validate if form is valid with valid HTML
+       // const isValid = validateExperience();
+
+       // if(!isValid) //showNotification('Please fix all errors and resubmit.', 'error');
+        //{
+        //console.log('not valid format');}
+        // Get Data for Javascript API
+        const jobTitle = document.getElementById('jobTitle').value;
+        const company = document.getElementById('company').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const jobDescription = document.getElementById('jobDescription').value;
+
+        // Javascript form values
+        const experienceData = [{
+          jobTitle:jobTitle,
+          company:company,
+          startDate: new Date(startDate).toISOString(),
+            endDate: endDate ? new Date(endDate).toISOString() : null,
+          jobDescription:jobDescription
+        }]
+console.log(experienceData);
+        const response = await fetch('http://localhost:5000/api/users/experience', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(experienceData)
+        });
+
+        if (response.ok) {
+            console.log('response submitted')
+            console.log(experienceData);
+            //showNotification('Experience details submitted', 'success');
+          nextSection(); // Save and continue
+        } else {
+            console.log('response');
+            //showNotification('error occured for experience', 'error');
+        }
+
+    } catch (error) {
+        console.error('Skill save error:', error);
+    //showNotification('error occured for experience: ' + error, 'error');
+    }
+}
+
+function validateExperience() {
+    const entries = document.querySelectorAll('.experience-entry');
+    console.log(entries);
+    if (entries.length === 0) {
+        showNotification('Add at least one experience entry', 'error');
+        return false;
+    }
+
+    let isValid = true;
+    entries.forEach((entry, index) => {
+        const requiredFields = [
+            entry.querySelector(`#jobTitle_${index}`),
+            entry.querySelector(`#company_${index}`),
+            entry.querySelector(`#startDate_${index}`)
+        ];
+
+        const entryValid = requiredFields.every(field => 
+            field && field.value.trim() !== ''
+        );
+
+        if (!entryValid) {
+            isValid = false;
+            entry.classList.add('invalid-entry');
+        } else {
+            entry.classList.remove('invalid-entry');
+        }
+    });
+
+    return isValid;
+}
+
+/******************************************
+ * FORM VALIDATION
+ ******************************************/
+
+
+
+
+
+
+/******************************************
+ * NOTIFICATION SYSTEM
+ ******************************************/
+
+/*
 function updateExperienceEntryIds() {
     const entries = document.querySelectorAll('.experience-entry');
     entries.forEach((entry, index) => {
@@ -717,9 +875,72 @@ function updateExperienceEntryIds() {
     });
 }
 
+*/
 
+// Define togglePreference globally so it's accessible from HTML onclick
+function togglePreference(type, value) {
+    selectedPreferences[type] = value;
 
+    // Update UI to show selected button
+    document.querySelectorAll(`button[data-type="${type}"]`).forEach(button => {
+        button.classList.remove("active");
+    });
 
+    document.querySelector(`button[data-type="${type}"][data-value="${value}"]`)
+        .classList.add("active");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    console.log('Form ready');
+    const preferenceButtons = document.querySelectorAll(".preference-btn");
+
+    window.selectedPreferences = {  // Make it accessible globally
+        environment: null,
+        companySize: null,
+        careerLevel: null
+    };
+
+    // Attach event listeners to buttons
+    preferenceButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const type = this.dataset.type;
+            const value = this.dataset.value;
+            togglePreference(type, value);
+        });
+    });
+
+    async function submitPreferences() {
+        if (!selectedPreferences.environment || !selectedPreferences.companySize || !selectedPreferences.careerLevel) {
+            alert("Please select all work preferences before proceeding.");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:5000/api/users/preferences", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                },
+                credentials: "include",
+                body: JSON.stringify(selectedPreferences)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to update preferences.");
+            }
+
+            alert("Preferences updated successfully!");
+        } catch (error) {
+            console.error("Error:", error);
+            alert(error.message);
+        }
+    }
+
+    document.getElementById("completeProfileBtn").addEventListener("click", submitPreferences);
+});
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -810,4 +1031,63 @@ sidebarLinks.forEach(link => {
         const sectionId = this.dataset.section;
         showSection(sectionId);
     });
+});
+function handleLogout() {
+    fetch('/api/users/logout', {
+        method: 'POST',
+        credentials: 'include'
+    }).then(() => {
+        console.log('Logging Out');
+        window.location.href = 'index.html';
+        // Prevent any further redirects
+       
+    });
+}
+  
+async function loadSavedData() {
+    try {
+        const response = await fetch('http://localhost:5000/api/users/dashboard', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        userProfile = data.userDetails;
+        updateUIFromProfile();
+    } catch (error) {
+console.log('Failed to fetch user data');
+    }
+}
+
+
+function updateUIFromProfile() {
+    // Update education section
+    const educationSelect = document.getElementById('highestDegree');
+    if (educationSelect) {
+        educationSelect.value = userProfile.education.degree || '';
+    }
+    
+    // Update skills display
+    if (userProfile.skills.technical.length > 0) {
+        selectedSkills = new Set(userProfile.skills.technical);
+        displaySelectedSkills();
+    }
+}
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const response = await fetch("http://localhost:5000/api/users/checkfortoken", {
+            method: "GET",
+            credentials: "include" // Ensures cookies are sent with the request
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            // Token found, redirect to dashboard
+            window.location.href = "index.html";
+        } else {
+            console.log('Token Found'); // Token not found, stay on the current page
+        }
+    } catch (error) {
+        console.error("Error checking token:", error);
+    }
 });

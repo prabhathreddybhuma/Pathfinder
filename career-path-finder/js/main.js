@@ -74,6 +74,7 @@ async function handleLogin(event) {
     try {
       const response = await fetch('/api/users/login', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
@@ -87,7 +88,14 @@ async function handleLogin(event) {
       showNotification(error.message, 'error');
     }
   }
-  
+  function handleLogout() {
+    fetch('/api/users/logout', {
+      method: 'POST',
+      credentials: 'include'
+    }).then(() => {
+      window.location.href = '/login';
+    });
+  }
   // Helper functions
   async function handleAuthResponse(response) {
     if (!response.ok) {
