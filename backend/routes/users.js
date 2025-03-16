@@ -157,31 +157,37 @@ router.patch('/skills', auth, async (req, res) => {
 });
 
 
-
 router.patch('/education', auth, async (req, res) => {
   try {
     const { degree, field, graduationYear, institution } = req.body;
 
-    if (!degree || !field || !graduationYear || !institution) {
-      return res.status(400).json({ error: 'All education fields needed' });
+    if (!degree && !field && !graduationYear && !institution) {
+      return res.status(400).json({ error: "At least one field is required for update" });
     }
 
-    // Check if education exists
-    const index = req.user.education.findIndex(edu => edu.degree === degree && edu.field === field);
-
-    if (index !== -1) {
-      // Update existing education entry
-      req.user.education[index] = { degree, field, graduationYear, institution };
-    } else {
-      return res.status(404).json({ error: 'Education entry not found' });
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    await req.user.save();
-    res.status(200).json(req.user.education);
+    // Find the first education entry and update only provided fields
+    if (user.education.length === 0) {
+      return res.status(404).json({ error: "No education record found to update" });
+    }
+
+    let educationEntry = user.education[0]; // Update the first entry (modify this logic as needed)
+    if (degree) educationEntry.degree = degree;
+    if (field) educationEntry.field = field;
+    if (graduationYear) educationEntry.graduationYear = graduationYear;
+    if (institution) educationEntry.institution = institution;
+
+    await user.save();
+    res.status(200).json(user.education);
   } catch (error) {
-    res.status(500).json({ error: "Failed to update education details" });
+    res.status(500).json({ error: error.message });
   }
 });
+
 
 
 router.get('/dashboard',auth,async(req,res)=>{
