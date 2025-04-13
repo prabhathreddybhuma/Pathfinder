@@ -133,7 +133,7 @@ async function initializeApp() {
 
 async function checkTokenValidity() {
     try {
-        const response = await fetch('http://localhost:5000/api/users/checkfortoken', {
+        const response = await fetch('http://localhost:5050/api/users/checkfortoken', {
             method: 'GET',
             credentials: 'include'
         });
@@ -144,7 +144,7 @@ async function checkTokenValidity() {
 }
 
 async function fetchUserData() {
-    const response = await fetch('http://localhost:5000/api/users/dashboard', {
+    const response = await fetch('http://localhost:5050/api/users/dashboard', {
         method: 'GET',
         credentials: 'include'
     });
@@ -155,7 +155,7 @@ async function fetchUserData() {
 
 async function fetchUserData() {
     try {
-      const response = await fetch("http://localhost:5000/api/users/dashboard", {
+      const response = await fetch("http://localhost:5050/api/users/dashboard", {
         method: "GET",
         headers: {
           "Content-Type": "application/json"
@@ -337,7 +337,7 @@ async function saveEducationToBackend(e) {
         console.log("📤 Sending Data:", educationData);  // Debugging Log
 
         try {
-            const response = await fetch('http://localhost:5000/api/users/education', {
+            const response = await fetch('http://localhost:5050/api/users/education', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -366,7 +366,7 @@ async function saveEducationToBackend(e) {
 
     async function fetchAndUpdateEducation() {
         try {
-            const response = await fetch("http://localhost:5000/api/users/dashboard", {
+            const response = await fetch("http://localhost:5050/api/users/dashboard", {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
                 credentials: 'include'
@@ -437,7 +437,7 @@ async function saveSkillsToBackend() {
 
         console.log("Formatted skills data:", skillsArray);
 
-        const response = await fetch('http://localhost:5000/api/users/skills', {
+        const response = await fetch('http://localhost:5050/api/users/skills', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -642,7 +642,7 @@ function displaySelectedSkills() {
 }
 async function fetchUserSkills() {
     try {
-        const response = await fetch("http://localhost:5000/api/users/dashboard", {
+        const response = await fetch("http://localhost:5050/api/users/dashboard", {
             method: "GET",
             headers: { 
               "Content-Type": "application/json" 
@@ -878,7 +878,7 @@ async function saveExperienceToBackend(e) {
           jobDescription:jobDescription
         }]
 console.log(experienceData);
-        const response = await fetch('http://localhost:5000/api/users/experience', {
+        const response = await fetch('http://localhost:5050/api/users/experience', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -935,7 +935,7 @@ function validateExperience() {
 }
 async function fetchAndUpdateExperience() {
     try {
-        const response = await fetch("http://localhost:5000/api/users/dashboard", {
+        const response = await fetch("http://localhost:5050/api/users/dashboard", {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             credentials: "include"
@@ -1074,7 +1074,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch("http://localhost:5000/api/users/preferences", {
+            const response = await fetch("http://localhost:5050/api/users/preferences", {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -1191,7 +1191,7 @@ sidebarLinks.forEach(link => {
     });
 });
 function handleLogout() {
-    fetch('http://localhost:5000/api/users/logout', {
+    fetch('http://localhost:5050/api/users/logout', {
         method: 'POST',
         credentials: 'include'
     }).then(() => {
@@ -1204,7 +1204,7 @@ function handleLogout() {
   
 async function loadSavedData() {
     try {
-        const response = await fetch('http://localhost:5000/api/users/dashboard', {
+        const response = await fetch('http://localhost:5050/api/users/dashboard', {
             method: 'GET',
             credentials: 'include'
         });
@@ -1230,9 +1230,10 @@ function updateUIFromProfile() {
         displaySelectedSkills();
     }
 }
-document.addEventListener("DOMContentLoaded", async () => {
+
+/*{document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const response = await fetch("http://localhost:5000/api/users/checkfortoken", {
+        const response = await fetch("http://localhost:5050/api/users/checkfortoken", {
             method: "GET",
             credentials: "include" // Ensures cookies are sent with the request
         });
@@ -1248,4 +1249,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
         console.error("Error checking token:", error);
     }
-});
+});*/
