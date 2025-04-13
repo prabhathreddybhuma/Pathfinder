@@ -5,5 +5,8 @@
   },
   "devDependencies": {
     "tailwindcss": "^3.4.17"
+  },
+  "scripts": {
+    "dev": "npx serve -p 5500"
   }
 }

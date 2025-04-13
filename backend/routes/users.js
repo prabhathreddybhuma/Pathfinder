@@ -27,7 +27,9 @@ router.post("/login", async (req, res) => {
       user.password = undefined;
 const options={
     expires:new Date(Date.now()+3*24*60*60*1000), 
-    httpOnly:true
+    httpOnly:true,
+    sameSite: "none",
+    secure: true
 }; res.status(200).cookie("token",token,options)
 .json({
         success: true,
@@ -206,15 +208,16 @@ router.get('/dashboard',auth,async(req,res)=>{
       console.log(err)
   }
   });
-  router.get('/checkfortoken',(req,res)=>{
-  if(req.cookies.token){
-    res.status(200).json({message:"Token Found"});
   
-  }
-  else{
-    res.status(401).json({message:"Token not found"});
-  }
-  
-  });
+router.get('/checkfortoken',(req,res)=>{
+if(req.cookies.token){
+  res.status(200).json({message:"Token Found"});
+
+}
+else{
+  res.status(401).json({message:"Token not found"});
+}
+
+});
 
 export default router;

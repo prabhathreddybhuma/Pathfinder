@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 const app = express();
 dotenv.config();
 app.use(cookieParser());
+
 mongoose.connect(process.env.uri)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
@@ -21,12 +22,13 @@ app.use(cors({
   credentials: true
 }));
   
-  app.use((req, res, next) => {
-    res.setHeader('Content-Security-Policy', "default-src 'self'");
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-    next();
-  });
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', "default-src 'self'");
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  next();
+});
+
 app.use('/api/users', userRoutes);
 app.use('/api/skills', skillRoutes);
 
