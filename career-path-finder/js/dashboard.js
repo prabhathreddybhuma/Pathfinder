@@ -1230,7 +1230,8 @@ function updateUIFromProfile() {
         displaySelectedSkills();
     }
 }
-document.addEventListener("DOMContentLoaded", async () => {
+
+/*{document.addEventListener("DOMContentLoaded", async () => {
     try {
         const response = await fetch("http://localhost:5050/api/users/checkfortoken", {
             method: "GET",
@@ -1248,4 +1249,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
         console.error("Error checking token:", error);
     }
-});
+});*/
