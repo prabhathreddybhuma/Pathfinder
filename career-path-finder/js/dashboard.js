@@ -153,12 +153,36 @@ async function fetchUserData() {
     return response.json();
 }
 
-function initializeUI(userData) {
-    document.getElementById('userName').textContent = 
-        `${userData.userDetails.firstName} ${userData.userDetails.lastName}`;
-    document.getElementById('userEmail').textContent = userData.userDetails.email;
-}
+async function fetchUserData() {
+    try {
+      const response = await fetch("http://localhost:5000/api/users/dashboard", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials:"include"
+      });
 
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const data = await response.json();
+
+      // Ensure data exists
+      if (data.success && data.userDetails) {
+        document.getElementById("userName").textContent =
+          `${data.userDetails.firstName} ${data.userDetails.lastName}`;
+        document.getElementById("userEmail").textContent = data.userDetails.email;
+      }
+      console.log('User details fetched')
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  }
+
+  // Call function when the page loads
+  document.addEventListener("DOMContentLoaded", fetchUserData);
 
 
 /* function initializeNavigation() {
@@ -338,6 +362,48 @@ async function saveEducationToBackend(e) {
             showNotification(error.message, 'error');
         }
     }
+
+
+    async function fetchAndUpdateEducation() {
+        try {
+            const response = await fetch("http://localhost:5000/api/users/dashboard", {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                credentials: 'include'
+            });
+    
+            if (!response.ok) throw new Error("Failed to fetch education data");
+    
+            const userData = await response.json();
+            const education = userData.userDetails?.education; // Check if education exists
+    
+            console.log('The education is:', education);
+    
+            if (education && education.degree) {
+                // Populate form fields with education data
+                document.getElementById("highestDegree").value = education.degree;
+                document.getElementById("fieldOfStudy").value = education.field;
+                document.getElementById("graduationYear").value = education.graduationYear;
+                document.getElementById("institution").value = education.institution;
+    
+                // Replace "Save & Continue" with "Edit"
+                
+            }
+        } catch (error) {
+            console.error("Error fetching education:", error);
+        }
+    }
+    
+    // Edit function (allows user to modify education details)
+    function editEducation(event) {
+        event.preventDefault();
+        alert("You can now edit your education details.");
+    }
+    
+    // Call the function when the dashboard loads
+    document.addEventListener("DOMContentLoaded", fetchAndUpdateEducation);
+    
+      
 
 
   // Update education display
@@ -574,7 +640,28 @@ function displaySelectedSkills() {
         skillsList.appendChild(skillTag);
     });
 }
+async function fetchUserSkills() {
+    try {
+        const response = await fetch("http://localhost:5000/api/users/dashboard", {
+            method: "GET",
+            headers: { 
+              "Content-Type": "application/json" 
+            },
+            credentials: 'include'
+          });
+        const userData = await response.json();
+console.log('The skills are',userData.userDetails.skills)
+        if (userData.userDetails.skills && Array.isArray(userData.userDetails.skills)) {
+            userData.userDetails.skills.forEach(skill => selectedSkills.add(skill));
+        }
 
+        displaySelectedSkills();
+        updateSkillsCount();
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+document.addEventListener('DOMContentLoaded', fetchUserSkills);
 function removeSkill(skill) {
     selectedSkills.delete(skill);
     const btn = document.querySelector(`[data-skill="${skill}"]`);
@@ -846,6 +933,77 @@ function validateExperience() {
 
     return isValid;
 }
+async function fetchAndUpdateExperience() {
+    try {
+        const response = await fetch("http://localhost:5000/api/users/dashboard", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include"
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch experience data");
+        }
+        const data = await response.json();
+        // Adjust according to your API response structure:
+
+        const experienceArray =data.userDetails.experience; 
+        console.log("Fetched Experience Data:", experienceArray);
+
+        const experienceList = document.getElementById("experienceList");
+        // Clear existing entries (if any)
+        experienceList.innerHTML = "";
+
+        if (experienceArray && experienceArray.length > 0) {
+            // For each experience entry, add a block to the form
+            experienceArray.forEach((exp, index) => {
+                const newEntry = document.createElement("div");
+                newEntry.className = "experience-entry";
+                newEntry.innerHTML = `
+                    <div class="form-group">
+                        <label for="jobTitle_${index}">Job Title</label>
+                        <input type="text" id="jobTitle_${index}" name="jobTitle[]" value="${exp.jobTitle || ""}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company_${index}">Company</label>
+                        <input type="text" id="company_${index}" name="company[]" value="${exp.company || ""}" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate_${index}">Start Date</label>
+                            <input type="month" id="startDate_${index}" name="startDate[]" value="${exp.startDate ? new Date(exp.startDate).toISOString().substr(0,7) : ""}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate_${index}">End Date</label>
+                            <input type="month" id="endDate_${index}" name="endDate[]" value="${exp.endDate ? new Date(exp.endDate).toISOString().substr(0,7) : ""}">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="currentJob_${index}" name="currentJob[]" ${exp.currentJob ? "checked" : ""}>
+                                <label for="currentJob_${index}">I currently work here</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobDescription_${index}">Description</label>
+                        <textarea id="jobDescription_${index}" name="jobDescription[]">${exp.jobDescription || ""}</textarea>
+                    </div>
+                `;
+                experienceList.appendChild(newEntry);
+            });
+        } else {
+            // No experience data found—optionally, leave the default empty entry or call addExperienceEntry() to create one.
+            console.log("No experience data found; using default form entry.");
+            // Optionally, you can call your function to add the default entry:
+            // addExperienceEntry();
+        }
+    } catch (error) {
+        console.error("Error fetching experience:", error);
+    }
+}
+
+// Call the function when the dashboard loads
+document.addEventListener("DOMContentLoaded", fetchAndUpdateExperience);
+
+
+
 
 /******************************************
  * FORM VALIDATION
@@ -1033,7 +1191,7 @@ sidebarLinks.forEach(link => {
     });
 });
 function handleLogout() {
-    fetch('/api/users/logout', {
+    fetch('http://localhost:5000/api/users/logout', {
         method: 'POST',
         credentials: 'include'
     }).then(() => {

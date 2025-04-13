@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   skills: [{ type: String, required: true }],
-  education: [educationSchema],
+  education: educationSchema,
   experience: [experienceSchema],
   interests: {
   

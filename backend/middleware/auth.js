@@ -3,8 +3,14 @@ import User from '../models/User.js';
 
 const auth = async (req, res, next) => {
     try {
-        const token = req.cookies.token;
-        
+        // Check for token in cookies
+        let token = req.cookies.token;
+
+        // If not found in cookies, check Authorization header
+        if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            token = req.headers.authorization.split(' ')[1];
+        }
+
         if (!token) {
             return res.status(403).send('Login first');
         }
@@ -26,14 +32,11 @@ const auth = async (req, res, next) => {
         if (err.name === 'TokenExpiredError') {
             res.clearCookie('token'); // Remove expired token from cookies
             return res.status(401).json({ error: "Session expired. Please log in again." });
-        }
-
-        
-        else{
+        } else {
             console.error(err);
-        return res.status(401).send('Invalid Token');
-          }  }
+            return res.status(401).send('Invalid Token');
+        }
+    }
 };
 
 export default auth;
-

@@ -58,7 +58,7 @@ const options={
         maxAge: 7 * 24 * 60 * 60 * 1000
     };
   
-      res.status(201).cookie("authToken",token,cookieOptions).json({ user });
+      res.status(201).cookie("token",token,cookieOptions).json({ user });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -66,7 +66,7 @@ const options={
   
   // Logout route
   router.post('/logout', auth, (req, res) => {
-    res.clearCookie('authToken', {
+    res.clearCookie('token', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'Strict',
@@ -156,7 +156,6 @@ router.patch('/skills', auth, async (req, res) => {
   }
 });
 
-
 router.patch('/education', auth, async (req, res) => {
   try {
     const { degree, field, graduationYear, institution } = req.body;
@@ -170,16 +169,16 @@ router.patch('/education', auth, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Find the first education entry and update only provided fields
-    if (user.education.length === 0) {
-      return res.status(404).json({ error: "No education record found to update" });
+    // If education is empty, create a new entry
+    if (!user.education) {
+      user.education = {};
     }
 
-    let educationEntry = user.education[0]; // Update the first entry (modify this logic as needed)
-    if (degree) educationEntry.degree = degree;
-    if (field) educationEntry.field = field;
-    if (graduationYear) educationEntry.graduationYear = graduationYear;
-    if (institution) educationEntry.institution = institution;
+    // Update only provided fields
+    if (degree) user.education.degree = degree;
+    if (field) user.education.field = field;
+    if (graduationYear) user.education.graduationYear = graduationYear;
+    if (institution) user.education.institution = institution;
 
     await user.save();
     res.status(200).json(user.education);
@@ -187,6 +186,7 @@ router.patch('/education', auth, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 
 
