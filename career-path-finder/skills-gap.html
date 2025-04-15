@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Career Path Matches - Path Finder</title>
+    <title>Skills Gap Analysis - Path Finder</title>
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/skills-gap.css">
     <link href="https://fonts.googleapis.com/css2?family=Braah+One&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <meta name="description" content="View your career path matches and compatibility">
+    <meta name="description" content="Analyze your skills gap and get recommendations for your chosen career path">
 </head>
 <body class="dark-theme">
     <div class="dashboard-layout">
@@ -48,11 +48,11 @@
                             <span class="nav-icon" aria-hidden="true">📊</span>
                             Career Paths
                         </a></li>
-                        <li><a href="skills-gap.html" class="nav-link">
+                        <li><a href="skills-gap.html" class="nav-link active" aria-current="page">
                             <span class="nav-icon" aria-hidden="true">📈</span>
                             Skills Gap
                         </a></li>
-                        <li><a href="job-matches.html" class="nav-link active" aria-current="page">
+                        <li><a href="job-matches.html" class="nav-link">
                             <span class="nav-icon" aria-hidden="true">🤝</span>
                             Job Matches
                         </a></li>
@@ -79,10 +79,22 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="content-header">
-                <h2 class="page-title">Career Path Matches</h2>
+                <h2 class="page-title">Skills Gap Analysis</h2>
                 <div class="header-actions">
-                    <button class="export-btn" id="export-btn" aria-label="Export matches as PDF">
-                        <span aria-hidden="true">📑</span> Export Matches
+                    <div class="career-select">
+                        <label for="career-path">Career Path:</label>
+                        <select id="career-path" onchange="updateSkillsGapAnalysis()" aria-label="Select career path to analyze">
+                            <option value="data-scientist">Data Scientist</option>
+                            <option value="full-stack">Full Stack Developer</option>
+                            <option value="devops">DevOps Engineer</option>
+                            <option value="ml-engineer">Machine Learning Engineer</option>
+                            <option value="cloud-architect">Cloud Architect</option>
+                            <option value="cybersecurity-analyst">Cybersecurity Analyst</option>
+                            <option value="ui-ux-designer">UI/UX Designer</option>
+                        </select>
+                    </div>
+                    <button class="export-btn" id="export-btn" aria-label="Export analysis as PDF">
+                        <span aria-hidden="true">📑</span> Export Analysis
                     </button>
                 </div>
             </header>
@@ -90,137 +102,68 @@
             <!-- Loading Indicator -->
             <div id="loading-spinner" class="loading-spinner hidden">
                 <div class="spinner"></div>
-                <span>Loading your career matches...</span>
+                <span>Analyzing your skills...</span>
             </div>
 
-            <!-- Career Matches Content -->
-            <div class="career-matches-container">
-                <section class="matches-summary" aria-labelledby="summary-heading">
-                    <h3 id="summary-heading">Your Top Career Matches</h3>
-                    <p class="matches-description">
-                        Based on your profile, here are your top career path matches. 
-                        Each match shows your compatibility percentage and skills breakdown.
-                    </p>
+            <!-- Skills Gap Content -->
+            <div class="skills-gap-container">
+                <!-- Summary -->
+                <section class="gap-summary" aria-labelledby="summary-heading">
+                    <h3 id="summary-heading" class="sr-only">Career Path Summary</h3>
+                    <div class="summary-stats">
+                        <div class="summary-card">
+                            <span class="summary-value" aria-label="Skills match percentage">68%</span>
+                            <span class="summary-label">Skills Match</span>
+                        </div>
+                        <div class="summary-card">
+                            <span class="summary-value" aria-label="Number of missing skills">7</span>
+                            <span class="summary-label">Missing Skills</span>
+                        </div>
+                        <div class="summary-card">
+                            <span class="summary-value" aria-label="Number of strong skills">5</span>
+                            <span class="summary-label">Strong Skills</span>
+                        </div>
+                    </div>
+                    <div class="summary-text">
+                        <h3>Data Scientist Career Path</h3>
+                        <p>
+                            Based on your profile, you have a strong foundation for a career as a Data Scientist. 
+                            To improve your job readiness, focus on developing the missing skills highlighted below.
+                        </p>
+                    </div>
                 </section>
 
-                <div class="match-cards-container" id="matchCardsContainer">
-                    <!-- Card for Software Engineer -->
-                    <div class="match-card">
-                        <div class="match-header">
-                            <h3 class="career-title">Software Engineer</h3>
-                            <div class="match-percentage">38%</div>
-                        </div>
-                        <div class="skills-container">
-                            <div class="skills-section">
-                                <h4>Required Skills</h4>
-                                <ul class="skills-list">
-                                    <li>C++</li>
-                                    <li>Agile</li>
-                                    <li>Git</li>
-                                    <li>System Design</li>
-                                    <li>Software Testing</li>
-                                    <li>Java</li>
-                                </ul>
-                            </div>
-                            <div class="skills-section missing">
-                                <h4>Missing Skills</h4>
-                                <ul class="skills-list">
-                                    <li>C++</li>
-                                    <li>Agile</li>
-                                    <li>Git</li>
-                                    <li>Software Testing</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="match-actions">
-                            <button class="analyze-gap-btn" data-career="software-engineer">Analyze Skills Gap</button>
-                            <button class="view-jobs-btn" data-career="software-engineer">View Job Openings</button>
+                <!-- Skills Gap Visualization -->
+                <section class="gap-visualization" aria-labelledby="visualization-heading">
+                    <h3 id="visualization-heading">Skills Gap Visualization</h3>
+                    <div class="visualization-chart">
+                        <div class="chart-container" role="img" aria-label="Chart showing your skills proficiency levels">
+                            <!-- This will be populated dynamically by JavaScript -->
                         </div>
                     </div>
+                </section>
 
-                    <!-- Card for Backend Developer -->
-                    <div class="match-card">
-                        <div class="match-header">
-                            <h3 class="career-title">Backend Developer</h3>
-                            <div class="match-percentage">35%</div>
+                <!-- Skills Breakdown -->
+                <div class="skills-breakdown">
+                    <section class="breakdown-section" aria-labelledby="existing-skills-heading">
+                        <h3 id="existing-skills-heading">Skills You Have</h3>
+                        <div class="skills-list" role="list">
+                            <!-- This will be populated dynamically by JavaScript -->
                         </div>
-                        <div class="skills-container">
-                            <div class="skills-section">
-                                <h4>Required Skills</h4>
-                                <ul class="skills-list">
-                                    <li>C++</li>
-                                    <li>Java</li>
-                                    <li>System Design</li>
-                                    <li>Agile</li>
-                                    <li>Software Testing</li>
-                                </ul>
-                            </div>
-                            <div class="skills-section missing">
-                                <h4>Missing Skills</h4>
-                                <ul class="skills-list">
-                                    <li>C++</li>
-                                    <li>Agile</li>
-                                    <li>Software Testing</li>
-                                </ul>
-                            </div>
+                    </section>
+                    <section class="breakdown-section" aria-labelledby="missing-skills-heading">
+                        <h3 id="missing-skills-heading">Skills to Develop</h3>
+                        <div class="skills-list" role="list">
+                            <!-- This will be populated dynamically by JavaScript -->
                         </div>
-                        <div class="match-actions">
-                            <button class="analyze-gap-btn" data-career="backend-developer">Analyze Skills Gap</button>
-                            <button class="view-jobs-btn" data-career="backend-developer">View Job Openings</button>
-                        </div>
-                    </div>
-
-                    <!-- Card for Data Scientist -->
-                    <div class="match-card">
-                        <div class="match-header">
-                            <h3 class="career-title">Data Scientist</h3>
-                            <div class="match-percentage">5%</div>
-                        </div>
-                        <div class="skills-container">
-                            <div class="skills-section">
-                                <h4>Required Skills</h4>
-                                <ul class="skills-list">
-                                    <li>Python</li>
-                                    <li>SQL</li>
-                                    <li>Data Mining</li>
-                                    <li>Data Visualization</li>
-                                    <li>Deep Learning</li>
-                                    <li>Hadoop</li>
-                                    <li>TensorFlow</li>
-                                    <li>PyTorch</li>
-                                    <li>R</li>
-                                    <li>Spark</li>
-                                </ul>
-                            </div>
-                            <div class="skills-section missing">
-                                <h4>Missing Skills</h4>
-                                <ul class="skills-list">
-                                    <li>Data Mining</li>
-                                    <li>R</li>
-                                    <li>Deep Learning</li>
-                                    <li>PyTorch</li>
-                                    <li>Python</li>
-                                    <li>Hadoop</li>
-                                    <li>TensorFlow</li>
-                                    <li>Data Visualization</li>
-                                    <li>SQL</li>
-                                    <li>Spark</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="match-actions">
-                            <button class="analyze-gap-btn" data-career="data-scientist">Analyze Skills Gap</button>
-                            <button class="view-jobs-btn" data-career="data-scientist">View Job Openings</button>
-                        </div>
-                    </div>
+                    </section>
                 </div>
 
-                <section class="improve-matches">
-                    <h3>Improve Your Matches</h3>
-                    <p>Want to improve your career matches? Complete your profile and add more skills.</p>
-                    <div class="action-buttons">
-                        <a href="dashboard.html#skills" class="action-btn">Update Skills</a>
-                        <a href="dashboard.html#education" class="action-btn">Add Education</a>
+                <!-- Learning Recommendations -->
+                <section class="learning-recommendations" aria-labelledby="recommendations-heading">
+                    <h3 id="recommendations-heading">Learning Resources</h3>
+                    <div class="recommendation-cards">
+                        <!-- This will be populated dynamically by JavaScript -->
                     </div>
                 </section>
             </div>

@@ -9,31 +9,102 @@ const API_ENDPOINTS = {
     getCareerTips: '/api/career-tips'
 };
 
+// Page state to prevent duplicate renderings
+const pageState = {
+    isLoading: true,
+    recommendationsLoaded: false,
+    additionalPathsLoaded: false,
+    tipsLoaded: false,
+    fallbackDisplayed: false,
+    user: null
+};
+
 // Document ready function
 document.addEventListener('DOMContentLoaded', () => {
     initializeRecommendationsPage();
+    
+    // Add event listeners for buttons to avoid inline onclick attributes
+    setupEventListeners();
 });
+
+// Setup event listeners for buttons
+function setupEventListeners() {
+    // Generic delegate event listener for all buttons
+    document.body.addEventListener('click', (event) => {
+        const target = event.target;
+        
+        // View details buttons
+        if (target.classList.contains('view-details-btn') || target.classList.contains('mini-view-btn')) {
+            const careerIdAttribute = target.getAttribute('data-career-id');
+            if (careerIdAttribute) {
+                viewCareerDetails(careerIdAttribute);
+                event.preventDefault();
+            }
+        }
+        
+        // Save career path buttons
+        if (target.classList.contains('save-career-btn')) {
+            const careerIdAttribute = target.getAttribute('data-career-id');
+            if (careerIdAttribute) {
+                saveCareerPath(careerIdAttribute);
+                event.preventDefault();
+            }
+        }
+        
+        // Logout button
+        if (target.classList.contains('logout-btn')) {
+            handleLogout();
+            event.preventDefault();
+        }
+    });
+}
 
 // Page initialization
 async function initializeRecommendationsPage() {
     try {
+        // Show loading state
+        setLoadingState(true);
+        
         // Check if user is logged in and profile is complete
-        checkUserAuthentication();
+        const isAuthenticated = checkUserAuthentication();
+        if (!isAuthenticated) {
+            return; // Stop initialization if not authenticated
+        }
         
         // Load user info
         loadUserInfo();
         
         // Load all page data in parallel
-        await Promise.all([
+        await Promise.allSettled([
             loadCareerRecommendations(),
             loadAdditionalCareerPaths(),
             loadCareerTips()
         ]);
+        
+        // If any of the sections failed to load, check if we need fallback content
+        if (!pageState.recommendationsLoaded || !pageState.additionalPathsLoaded || !pageState.tipsLoaded) {
+            if (!pageState.fallbackDisplayed) {
+                displayFallbackContent();
+            }
+        }
     } catch (error) {
         console.error('Error initializing recommendations page:', error);
         showNotification('Error loading recommendations', 'error');
-        displayFallbackContent();
+        
+        if (!pageState.fallbackDisplayed) {
+            displayFallbackContent();
+        }
+    } finally {
+        setLoadingState(false);
     }
+}
+
+// Set loading state
+function setLoadingState(isLoading) {
+    pageState.isLoading = isLoading;
+    
+    // Here you could update UI to show loading indicators
+    // For example: document.body.classList.toggle('loading', isLoading);
 }
 
 // Check if user is logged in and profile is complete
@@ -41,20 +112,24 @@ function checkUserAuthentication() {
     const user = JSON.parse(localStorage.getItem('user'));
     const userProfile = JSON.parse(localStorage.getItem('userProfile'));
     
+    pageState.user = user;
+    
     if (!user) {
         window.location.href = 'index.html';
-        return;
+        return false;
     }
     
     if (!userProfile || !userProfile.metadata || !userProfile.metadata.isComplete) {
-        showNotification('Please complete your profile first', 'error');
+        showNotification('Please complete your profile first', 'warning');
         // We'll still show the page but with placeholder content
     }
+    
+    return true;
 }
 
 // Load user info
 function loadUserInfo() {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = pageState.user;
     if (user) {
         document.getElementById('userName').textContent = user.fullName || 'User';
         document.getElementById('userEmail').textContent = user.email || 'N/A';
@@ -69,11 +144,12 @@ async function loadCareerRecommendations() {
         const response = await fetch(API_ENDPOINTS.getCareerRecommendations, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             },
             body: JSON.stringify({
-                userId: getUserId(),
-                profileData: getUserProfile()
+                userId: pageState.user?.id,
+                profileData: JSON.parse(localStorage.getItem('userProfile') || '{}')
             })
         });
         
@@ -86,7 +162,11 @@ async function loadCareerRecommendations() {
         // For each career path, fetch its associated skills
         const careerPathsWithSkills = await Promise.all(
             data.recommendations.map(async (career) => {
-                const skillsResponse = await fetch(`${API_ENDPOINTS.getCareerSkills}/${career.id}`);
+                const skillsResponse = await fetch(`${API_ENDPOINTS.getCareerSkills}/${career.id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
                 if (!skillsResponse.ok) {
                     return {
                         ...career,
@@ -117,51 +197,53 @@ async function loadCareerRecommendations() {
         
         // Update profile match stats
         updateProfileMatchStats({
-            matchingSkills: 'N/A',
-            yearsExperience: 'N/A',
-            industryMatches: 'N/A'
+            matchingSkills: 24,
+            yearsExperience: 3,
+            industryMatches: 8
         });
         
         // Display placeholder career recommendations
         displayCareerRecommendations([
             {
-                id: 'career-path-1',
-                title: 'N/A',
-                subtitle: 'N/A',
-                matchScore: 'N/A',
-                salaryRange: { min: 'N/A', max: 'N/A' },
-                growthPotential: 'N/A',
-                currentDemand: 'N/A',
-                matchedSkills: ['N/A', 'N/A', 'N/A'],
-                gapSkills: ['N/A']
+                id: 'data-scientist',
+                title: 'Data Scientist',
+                subtitle: 'AI & Machine Learning Focus',
+                matchScore: '95',
+                salaryRange: { min: '95K', max: '150K' },
+                growthPotential: 'High',
+                currentDemand: 'Very High',
+                matchedSkills: ['Python', 'Machine Learning', 'Data Analysis'],
+                gapSkills: ['Deep Learning']
             },
             {
-                id: 'career-path-2',
-                title: 'N/A',
-                subtitle: 'N/A',
-                matchScore: 'N/A',
-                salaryRange: { min: 'N/A', max: 'N/A' },
-                growthPotential: 'N/A',
-                currentDemand: 'N/A',
-                matchedSkills: ['N/A', 'N/A', 'N/A'],
-                gapSkills: ['N/A']
+                id: 'cloud-architect',
+                title: 'Cloud Solutions Architect',
+                subtitle: 'Enterprise Infrastructure',
+                matchScore: '88',
+                salaryRange: { min: '110K', max: '180K' },
+                growthPotential: 'Very High',
+                currentDemand: 'High',
+                matchedSkills: ['AWS', 'Cloud Architecture', 'DevOps'],
+                gapSkills: ['Kubernetes']
             },
             {
-                id: 'career-path-3',
-                title: 'N/A',
-                subtitle: 'N/A',
-                matchScore: 'N/A',
-                salaryRange: { min: 'N/A', max: 'N/A' },
-                growthPotential: 'N/A',
-                currentDemand: 'N/A',
-                matchedSkills: ['N/A', 'N/A', 'N/A'],
-                gapSkills: ['N/A']
+                id: 'full-stack',
+                title: 'Full Stack Developer',
+                subtitle: 'Modern Web Technologies',
+                matchScore: '85',
+                salaryRange: { min: '85K', max: '140K' },
+                growthPotential: 'High',
+                currentDemand: 'Very High',
+                matchedSkills: ['JavaScript', 'React', 'Node.js'],
+                gapSkills: ['GraphQL']
             }
         ]);
+        
+        pageState.recommendationsLoaded = true;
     } catch (error) {
         console.error('Error loading career recommendations:', error);
         showNotification('Error loading career recommendations', 'error');
-        displayFallbackContent();
+        pageState.recommendationsLoaded = false;
     }
 }
 
@@ -174,7 +256,7 @@ async function loadAdditionalCareerPaths() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAuthToken()}`
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }
         });
         
@@ -193,38 +275,40 @@ async function loadAdditionalCareerPaths() {
         
         displayAdditionalCareers([
             {
-                id: 'additional-path-1',
-                title: 'N/A',
-                matchScore: 'N/A',
-                salary: { min: 'N/A', max: 'N/A' },
-                demand: 'N/A'
+                id: 'ml-engineer',
+                title: 'Machine Learning Engineer',
+                matchScore: '79',
+                salary: { min: '105K', max: '170K' },
+                demand: 'High'
             },
             {
-                id: 'additional-path-2',
-                title: 'N/A',
-                matchScore: 'N/A',
-                salary: { min: 'N/A', max: 'N/A' },
-                demand: 'N/A'
+                id: 'devops-engineer',
+                title: 'DevOps Engineer',
+                matchScore: '76',
+                salary: { min: '95K', max: '160K' },
+                demand: 'Very High'
             },
             {
-                id: 'additional-path-3',
-                title: 'N/A',
-                matchScore: 'N/A',
-                salary: { min: 'N/A', max: 'N/A' },
-                demand: 'N/A'
+                id: 'mobile-developer',
+                title: 'Mobile App Developer',
+                matchScore: '72',
+                salary: { min: '80K', max: '140K' },
+                demand: 'High'
             },
             {
-                id: 'additional-path-4',
-                title: 'N/A',
-                matchScore: 'N/A',
-                salary: { min: 'N/A', max: 'N/A' },
-                demand: 'N/A'
+                id: 'security-engineer',
+                title: 'Security Engineer',
+                matchScore: '68',
+                salary: { min: '90K', max: '150K' },
+                demand: 'High'
             }
         ]);
+        
+        pageState.additionalPathsLoaded = true;
     } catch (error) {
         console.error('Error loading additional career paths:', error);
         showNotification('Error loading additional career paths', 'error');
-        displayAdditionalCareers([]);
+        pageState.additionalPathsLoaded = false;
     }
 }
 
@@ -236,7 +320,8 @@ async function loadCareerTips() {
         const response = await fetch(API_ENDPOINTS.getCareerTips, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }
         });
         
@@ -256,122 +341,138 @@ async function loadCareerTips() {
         displayCareerTips([
             {
                 icon: '📚',
-                title: 'N/A',
-                description: 'N/A'
+                title: 'Continuous Learning',
+                description: 'Set aside time each week to learn new skills and stay updated with industry trends.'
             },
             {
                 icon: '🌐',
-                title: 'N/A',
-                description: 'N/A'
+                title: 'Build Your Network',
+                description: 'Join professional communities and attend industry events to expand your connections.'
             },
             {
                 icon: '💼',
-                title: 'N/A',
-                description: 'N/A'
+                title: 'Portfolio Development',
+                description: 'Create personal projects to demonstrate your skills and problem-solving abilities.'
             }
         ]);
+        
+        pageState.tipsLoaded = true;
     } catch (error) {
         console.error('Error loading career tips:', error);
-        displayCareerTips([]);
+        showNotification('Error loading career tips', 'error');
+        pageState.tipsLoaded = false;
     }
 }
 
 // Display fallback content when API data is not available
 function displayFallbackContent() {
-    // Update profile match summary with placeholder data
-    updateProfileMatchStats({
-        matchingSkills: 'N/A',
-        yearsExperience: 'N/A',
-        industryMatches: 'N/A'
-    });
+    // Set flag to avoid duplicate fallback rendering
+    if (pageState.fallbackDisplayed) {
+        return;
+    }
     
-    // Display placeholder career recommendations
-    displayCareerRecommendations([
-        {
-            id: 'career-path-1',
-            title: 'N/A',
-            subtitle: 'N/A',
-            matchScore: 'N/A',
-            salaryRange: { min: 'N/A', max: 'N/A' },
-            growthPotential: 'N/A',
-            currentDemand: 'N/A',
-            matchedSkills: ['N/A', 'N/A', 'N/A'],
-            gapSkills: ['N/A']
-        },
-        {
-            id: 'career-path-2',
-            title: 'N/A',
-            subtitle: 'N/A',
-            matchScore: 'N/A',
-            salaryRange: { min: 'N/A', max: 'N/A' },
-            growthPotential: 'N/A',
-            currentDemand: 'N/A',
-            matchedSkills: ['N/A', 'N/A', 'N/A'],
-            gapSkills: ['N/A']
-        },
-        {
-            id: 'career-path-3',
-            title: 'N/A',
-            subtitle: 'N/A',
-            matchScore: 'N/A',
-            salaryRange: { min: 'N/A', max: 'N/A' },
-            growthPotential: 'N/A',
-            currentDemand: 'N/A',
-            matchedSkills: ['N/A', 'N/A', 'N/A'],
-            gapSkills: ['N/A']
-        }
-    ]);
+    pageState.fallbackDisplayed = true;
+    
+    // Update profile match summary with placeholder data
+    if (!pageState.recommendationsLoaded) {
+        updateProfileMatchStats({
+            matchingSkills: 'N/A',
+            yearsExperience: 'N/A',
+            industryMatches: 'N/A'
+        });
+        
+        // Display placeholder career recommendations
+        displayCareerRecommendations([
+            {
+                id: 'career-path-1',
+                title: 'Data Scientist',
+                subtitle: 'AI & Machine Learning Focus',
+                matchScore: 'N/A',
+                salaryRange: { min: 'N/A', max: 'N/A' },
+                growthPotential: 'N/A',
+                currentDemand: 'N/A',
+                matchedSkills: ['Python', 'Machine Learning', 'Data Analysis'],
+                gapSkills: ['Deep Learning']
+            },
+            {
+                id: 'career-path-2',
+                title: 'Cloud Solutions Architect',
+                subtitle: 'Enterprise Infrastructure',
+                matchScore: 'N/A',
+                salaryRange: { min: 'N/A', max: 'N/A' },
+                growthPotential: 'N/A',
+                currentDemand: 'N/A',
+                matchedSkills: ['AWS', 'Cloud Architecture', 'DevOps'],
+                gapSkills: ['Kubernetes']
+            },
+            {
+                id: 'career-path-3',
+                title: 'Full Stack Developer',
+                subtitle: 'Modern Web Technologies',
+                matchScore: 'N/A',
+                salaryRange: { min: 'N/A', max: 'N/A' },
+                growthPotential: 'N/A',
+                currentDemand: 'N/A',
+                matchedSkills: ['JavaScript', 'React', 'Node.js'],
+                gapSkills: ['GraphQL']
+            }
+        ]);
+    }
     
     // Display placeholder additional careers
-    displayAdditionalCareers([
-        {
-            id: 'additional-path-1',
-            title: 'N/A',
-            matchScore: 'N/A',
-            salary: { min: 'N/A', max: 'N/A' },
-            demand: 'N/A'
-        },
-        {
-            id: 'additional-path-2',
-            title: 'N/A',
-            matchScore: 'N/A',
-            salary: { min: 'N/A', max: 'N/A' },
-            demand: 'N/A'
-        },
-        {
-            id: 'additional-path-3',
-            title: 'N/A',
-            matchScore: 'N/A',
-            salary: { min: 'N/A', max: 'N/A' },
-            demand: 'N/A'
-        },
-        {
-            id: 'additional-path-4',
-            title: 'N/A',
-            matchScore: 'N/A',
-            salary: { min: 'N/A', max: 'N/A' },
-            demand: 'N/A'
-        }
-    ]);
+    if (!pageState.additionalPathsLoaded) {
+        displayAdditionalCareers([
+            {
+                id: 'ml-engineer',
+                title: 'Machine Learning Engineer',
+                matchScore: 'N/A',
+                salary: { min: 'N/A', max: 'N/A' },
+                demand: 'N/A'
+            },
+            {
+                id: 'devops-engineer',
+                title: 'DevOps Engineer',
+                matchScore: 'N/A',
+                salary: { min: 'N/A', max: 'N/A' },
+                demand: 'N/A'
+            },
+            {
+                id: 'mobile-developer',
+                title: 'Mobile App Developer',
+                matchScore: 'N/A',
+                salary: { min: 'N/A', max: 'N/A' },
+                demand: 'N/A'
+            },
+            {
+                id: 'security-engineer',
+                title: 'Security Engineer',
+                matchScore: 'N/A',
+                salary: { min: 'N/A', max: 'N/A' },
+                demand: 'N/A'
+            }
+        ]);
+    }
     
     // Display placeholder career tips
-    displayCareerTips([
-        {
-            icon: '📚',
-            title: 'N/A',
-            description: 'N/A'
-        },
-        {
-            icon: '🌐',
-            title: 'N/A',
-            description: 'N/A'
-        },
-        {
-            icon: '💼',
-            title: 'N/A',
-            description: 'N/A'
-        }
-    ]);
+    if (!pageState.tipsLoaded) {
+        displayCareerTips([
+            {
+                icon: '📚',
+                title: 'Continuous Learning',
+                description: 'Set aside time each week to learn new skills and stay updated with industry trends.'
+            },
+            {
+                icon: '🌐',
+                title: 'Build Your Network',
+                description: 'Join professional communities and attend industry events to expand your connections.'
+            },
+            {
+                icon: '💼',
+                title: 'Portfolio Development',
+                description: 'Create personal projects to demonstrate your skills and problem-solving abilities.'
+            }
+        ]);
+    }
 }
 
 // Update profile match statistics
@@ -434,10 +535,10 @@ function displayCareerRecommendations(careers) {
                 </div>
             </div>
             <div class="career-actions">
-                <button class="view-details-btn" onclick="viewCareerDetails('${career.id}')">
+                <button class="view-details-btn" data-career-id="${career.id}">
                     View Details
                 </button>
-                <button class="save-career-btn" onclick="saveCareerPath('${career.id}')">
+                <button class="save-career-btn" data-career-id="${career.id}">
                     Save Path
                 </button>
             </div>
@@ -466,7 +567,7 @@ function displayAdditionalCareers(careers) {
                     <span class="mini-value">${career.demand}</span>
                 </div>
             </div>
-            <button class="mini-view-btn" onclick="viewCareerDetails('${career.id}')">View Details</button>
+            <button class="mini-view-btn" data-career-id="${career.id}">View Details</button>
         </div>
     `).join('');
 }
@@ -490,7 +591,11 @@ async function viewCareerDetails(careerId) {
     try {
         // In a real implementation, this would be an API call:
         /*
-        const response = await fetch(`${API_ENDPOINTS.getCareerDetails}/${careerId}`);
+        const response = await fetch(`${API_ENDPOINTS.getCareerDetails}/${careerId}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch career details');
         }
@@ -515,10 +620,11 @@ async function saveCareerPath(careerId) {
         const response = await fetch(API_ENDPOINTS.saveCareerPath, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             },
             body: JSON.stringify({
-                userId: getUserId(),
+                userId: pageState.user?.id,
                 careerId: careerId
             })
         });
@@ -544,7 +650,13 @@ function showNotification(message, type = 'success') {
     notification.textContent = message;
     notification.className = `notification ${type}`;
     
-    setTimeout(() => {
+    // Clear any existing timeout
+    if (notification.timeoutId) {
+        clearTimeout(notification.timeoutId);
+    }
+    
+    // Set new timeout
+    notification.timeoutId = setTimeout(() => {
         notification.className = 'notification hidden';
     }, 3000);
 }
@@ -553,5 +665,6 @@ function showNotification(message, type = 'success') {
 function handleLogout() {
     localStorage.removeItem('user');
     localStorage.removeItem('userProfile');
+    localStorage.removeItem('authToken');
     window.location.href = 'index.html';
 }
