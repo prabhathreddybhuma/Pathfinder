@@ -1,13 +1,28 @@
-// API Endpoints (to be used with actual implementation)
+/**
+ * Career Path Finder - Recommendations Page
+ * This script handles loading and displaying career recommendations,
+ * skills gaps, and job opportunities based on user profile data.
+ */
+
+// API Endpoints for career recommendation functionality
 const API_ENDPOINTS = {
-    getCareerRecommendations: '/api/career-recommendations',
-    getProfileMatch: '/api/profile-match',
-    saveCareerPath: '/api/save-career',
-    getCareerDetails: '/api/career-details',
-    getCareerSkills: '/api/career-skills',
-    getMoreCareerPaths: '/api/more-career-paths',
-    getCareerTips: '/api/career-tips'
+    // User data and authentication
+    checkToken: 'http://localhost:5050/api/users/checkfortoken',
+    getUserData: 'http://localhost:5050/api/users/dashboard',
+    
+    // Career recommendations - Update this URL with your current Colab URL
+    getCareerRecommendations: 'https://5000-m-s-ac8pwxwjl616-c.us-east4-1.prod.colab.dev/api/career-recommendations',
+    saveCareerPath: 'http://localhost:5050/api/save-career',
+    getCareerDetails: 'http://localhost:5050/api/career-details',
+    
+    // Additional data endpoints
+    getCareerSkills: 'http://localhost:5050/api/career-skills',
+    getMoreCareerPaths: 'http://localhost:5050/api/more-career-paths',
+    getCareerTips: 'http://localhost:5050/api/career-tips'
 };
+
+// DOM Elements
+let elements = {};
 
 // Page state to prevent duplicate renderings
 const pageState = {
@@ -19,17 +34,52 @@ const pageState = {
     user: null
 };
 
-// Document ready function
+/**
+ * Initialize the page when document is loaded
+ */
 document.addEventListener('DOMContentLoaded', () => {
+    // Cache DOM elements
+    cacheElements();
+    
+    // Initialize page
     initializeRecommendationsPage();
     
-    // Add event listeners for buttons to avoid inline onclick attributes
+    // Set up event listeners
     setupEventListeners();
 });
 
-// Setup event listeners for buttons
+/**
+ * Cache DOM elements for future use
+ */
+function cacheElements() {
+    elements = {
+        // User information elements
+        userNameElement: document.getElementById('userName'),
+        userEmailElement: document.getElementById('userEmail'),
+        
+        // Stats elements
+        matchingSkillsElement: document.querySelector('.stat-item:nth-child(1) .stat-value'),
+        yearsExperienceElement: document.querySelector('.stat-item:nth-child(2) .stat-value'),
+        industryMatchesElement: document.querySelector('.stat-item:nth-child(3) .stat-value'),
+        
+        // Content containers
+        careerCardsContainer: document.querySelector('.career-cards'),
+        additionalCareersContainer: document.querySelector('.recommendation-grid'),
+        tipsContainer: document.querySelector('.tip-cards'),
+        
+        // Notification element
+        notificationElement: document.getElementById('notification'),
+        
+        // Loading elements
+        loadingIndicator: document.querySelector('.loading-indicator')
+    };
+}
+
+/**
+ * Set up event listeners for buttons and actions
+ */
 function setupEventListeners() {
-    // Generic delegate event listener for all buttons
+    // Generic delegate event listener for buttons
     document.body.addEventListener('click', (event) => {
         const target = event.target;
         
@@ -59,19 +109,26 @@ function setupEventListeners() {
     });
 }
 
-// Page initialization
+/**
+ * Main page initialization function
+ */
 async function initializeRecommendationsPage() {
     try {
         // Show loading state
         setLoadingState(true);
         
-        // Check if user is logged in and profile is complete
-        const isAuthenticated = checkUserAuthentication();
+        // Check if user is logged in
+        const isAuthenticated = await checkAuthentication();
         if (!isAuthenticated) {
-            return; // Stop initialization if not authenticated
+            window.location.href = 'index.html';
+            return;
         }
         
-        // Load user info
+        // Load user data and profile information
+        const userData = await fetchUserData();
+        pageState.user = userData.userDetails;
+        
+        // Load user info into header
         loadUserInfo();
         
         // Load all page data in parallel
@@ -89,7 +146,7 @@ async function initializeRecommendationsPage() {
         }
     } catch (error) {
         console.error('Error initializing recommendations page:', error);
-        showNotification('Error loading recommendations', 'error');
+        showNotification('Error loading recommendations. Please try again.', 'error');
         
         if (!pageState.fallbackDisplayed) {
             displayFallbackContent();
@@ -99,178 +156,330 @@ async function initializeRecommendationsPage() {
     }
 }
 
-// Set loading state
-function setLoadingState(isLoading) {
-    pageState.isLoading = isLoading;
-    
-    // Here you could update UI to show loading indicators
-    // For example: document.body.classList.toggle('loading', isLoading);
-}
-
-// Check if user is logged in and profile is complete
-function checkUserAuthentication() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const userProfile = JSON.parse(localStorage.getItem('userProfile'));
-    
-    pageState.user = user;
-    
-    if (!user) {
-        window.location.href = 'index.html';
-        return false;
-    }
-    
-    if (!userProfile || !userProfile.metadata || !userProfile.metadata.isComplete) {
-        showNotification('Please complete your profile first', 'warning');
-        // We'll still show the page but with placeholder content
-    }
-    
-    return true;
-}
-
-// Load user info
-function loadUserInfo() {
-    const user = pageState.user;
-    if (user) {
-        document.getElementById('userName').textContent = user.fullName || 'User';
-        document.getElementById('userEmail').textContent = user.email || 'N/A';
-    }
-}
-
-// Load career recommendations
-async function loadCareerRecommendations() {
+/**
+ * Check if user is authenticated
+ */
+async function checkAuthentication() {
     try {
-        // In a real implementation, this would be an API call:
-        /*
-        const response = await fetch(API_ENDPOINTS.getCareerRecommendations, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            },
-            body: JSON.stringify({
-                userId: pageState.user?.id,
-                profileData: JSON.parse(localStorage.getItem('userProfile') || '{}')
-            })
+        const response = await fetch(API_ENDPOINTS.checkToken, {
+            method: 'GET',
+            credentials: 'include' // Ensures cookies are sent with the request
         });
         
         if (!response.ok) {
-            throw new Error('Failed to fetch recommendations');
+            return false;
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Authentication check failed:', error);
+        return false;
+    }
+}
+
+/**
+ * Fetch user data from API
+ */
+async function fetchUserData() {
+    try {
+        const response = await fetch(API_ENDPOINTS.getUserData, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch user data');
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        showNotification('Unable to load user data', 'error');
+        throw error;
+    }
+}
+
+/**
+ * Update UI with user information
+ */
+function loadUserInfo() {
+    if (!pageState.user) return;
+    
+    if (elements.userNameElement) {
+        elements.userNameElement.textContent = `${pageState.user.firstName} ${pageState.user.lastName}`;
+    }
+    
+    if (elements.userEmailElement) {
+        elements.userEmailElement.textContent = pageState.user.email;
+    }
+}
+
+/**
+ * Set loading state and update UI
+ */
+function setLoadingState(isLoading) {
+    pageState.isLoading = isLoading;
+    
+    if (elements.loadingIndicator) {
+        if (isLoading) {
+            elements.loadingIndicator.classList.remove('hidden');
+        } else {
+            elements.loadingIndicator.classList.add('hidden');
+        }
+    }
+    
+    // Optional: disable UI interaction during loading
+    if (isLoading) {
+        document.body.classList.add('loading');
+    } else {
+        document.body.classList.remove('loading');
+    }
+}
+
+/**
+ * Format degree value to match dataset terminology
+ */
+function formatDegreeForModel(degree) {
+    // Map frontend degree values to dataset values
+    const degreeMap = {
+        "highschool": "High School Diploma",
+        "associates": "Associate's Degree",
+        "bachelors": "B.Tech", // Map to B.Tech as per dataset
+        "masters": "M.Tech", // Map to M.Tech as per dataset
+        "phd": "Ph.D.",
+        "professional": "Professional Degree"
+    };
+    
+    return degreeMap[degree.toLowerCase()] || degree;
+}
+
+/**
+ * Format course/field of study to match dataset terminology
+ */
+function formatCourseForModel(course) {
+    if (!course) return "Computer Science and Engineering"; // Default
+    
+    // Map frontend course values to dataset values
+    const courseMap = {
+        "computer science": "Computer Science and Engineering",
+        "information technology": "Information Technology",
+        "electrical engineering": "Electrical Engineering",
+        "data science": "Data Science",
+        "software engineering": "Software Engineering",
+        "csescience": "Computer Science and Engineering"
+    };
+    
+    // Try exact match first
+    if (courseMap[course.toLowerCase()]) {
+        return courseMap[course.toLowerCase()];
+    }
+    
+    // Try partial match
+    for (const [key, value] of Object.entries(courseMap)) {
+        if (course.toLowerCase().includes(key)) {
+            return value;
+        }
+    }
+    
+    return course;
+}
+
+/**
+ * Format skills for the ML model
+ */
+function formatSkillsForModel(skills) {
+    if (!Array.isArray(skills)) {
+        console.error('Skills is not an array:', skills);
+        return [];
+    }
+    
+    // Ensure skills are formatted as the model expects
+    const skillsMap = {
+        "javascript": "JavaScript",
+        "react.js": "React",
+        "reactjs": "React",
+        "node.js": "Node.js",
+        "nodejs": "Node.js",
+        "python": "Python",
+        "java": "Java",
+        "html": "HTML5",
+        "css": "CSS3",
+        "aws": "AWS",
+        "docker": "Docker",
+        "kubernetes": "Kubernetes",
+        "machine learning": "Machine Learning",
+        "deep learning": "Deep Learning",
+        "sql": "SQL",
+        "postgresql": "PostgreSQL",
+        "mongodb": "MongoDB"
+    };
+    
+    return skills.map(skill => {
+        const normalizedSkill = skill.toLowerCase();
+        return skillsMap[normalizedSkill] || skill;
+    });
+}
+
+/**
+ * Format interests for the ML model
+ */
+function formatInterestsForModel(interests) {
+    if (!Array.isArray(interests)) {
+        console.error('Interests is not an array:', interests);
+        return [];
+    }
+    
+    // Map interests to match dataset values
+    const interestsMap = {
+        "web development": "Web Development",
+        "mobile development": "Mobile Development",
+        "artificial intelligence": "Artificial Intelligence",
+        "data science": "Data Science",
+        "machine learning": "Machine Learning",
+        "cloud computing": "Cloud Computing",
+        "cybersecurity": "Cybersecurity",
+        "devops": "DevOps",
+        "software development": "Software Development"
+    };
+    
+    return interests.map(interest => {
+        const normalizedInterest = interest.toLowerCase();
+        return interestsMap[normalizedInterest] || interest;
+    });
+}
+
+/**
+ * Load career recommendations from ML model API
+ */
+async function loadCareerRecommendations() {
+    try {
+        // Format education data to match dataset values
+        const educationDegree = formatDegreeForModel(pageState.user?.education?.degree || "");
+        const educationField = formatCourseForModel(pageState.user?.education?.field || "");
+        const specialization = pageState.user?.education?.specialization || "General";
+        
+        console.log('User education data:', {
+            degree: educationDegree,
+            field: educationField,
+            specialization: specialization
+        });
+        
+        // Get skills and format them
+        let userSkills = [];
+        if (Array.isArray(pageState.user?.skills)) {
+            userSkills = formatSkillsForModel(pageState.user.skills);
+        } else {
+            console.warn('Skills not in expected format:', pageState.user?.skills);
+        }
+        
+        console.log('Formatted skills:', userSkills);
+        
+        // Get interests and format them
+        let userInterests = [];
+        if (pageState.user?.interests?.careerInterests && 
+            Array.isArray(pageState.user.interests.careerInterests)) {
+            userInterests = formatInterestsForModel(pageState.user.interests.careerInterests);
+        } else {
+            console.warn('Interests not in expected format:', pageState.user?.interests?.careerInterests);
+        }
+        
+        console.log('Formatted interests:', userInterests);
+        
+        // Prepare user data for the ML model
+        const userData = {
+            education: {
+                degree: educationDegree,
+                field: educationField,
+                specialization: specialization
+            },
+            skills: userSkills,
+            experience: pageState.user?.experience || [],
+            interests: {
+                careerInterests: userInterests
+            }
+        };
+        
+        console.log('Sending user data to ML model:', userData);
+        
+        // Call the ML model API
+        const response = await fetch(API_ENDPOINTS.getCareerRecommendations, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch recommendations from ML model');
         }
         
         const data = await response.json();
+        console.log('Received recommendations from ML model:', data);
         
-        // For each career path, fetch its associated skills
-        const careerPathsWithSkills = await Promise.all(
-            data.recommendations.map(async (career) => {
-                const skillsResponse = await fetch(`${API_ENDPOINTS.getCareerSkills}/${career.id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                    }
-                });
-                if (!skillsResponse.ok) {
-                    return {
-                        ...career,
-                        matchedSkills: ['N/A'],
-                        gapSkills: ['N/A']
-                    };
-                }
-                
-                const skillsData = await skillsResponse.json();
-                return {
-                    ...career,
-                    matchedSkills: skillsData.matchedSkills || ['N/A'],
-                    gapSkills: skillsData.gapSkills || ['N/A']
-                };
-            })
-        );
+        // Check if the response contains an error
+        if (data.error) {
+            throw new Error(`API error: ${data.error}`);
+        }
         
-        displayCareerRecommendations(careerPathsWithSkills);
+        // Update UI with ML model recommendations
         updateProfileMatchStats(data.profileStats);
-        */
         
-        // Log API endpoints for reference
-        console.log(`Career recommendations API endpoint: ${API_ENDPOINTS.getCareerRecommendations}`);
-        console.log(`Career skills API endpoint: ${API_ENDPOINTS.getCareerSkills}/{career_id}`);
+        // Transform the career matches to match your UI format
+        const formattedCareers = data.careerMatches.map(match => ({
+            id: match.career.toLowerCase().replace(/\s+/g, '-'),
+            title: match.career,
+            subtitle: match.subtitle || `${match.career} Professional`,
+            matchScore: match.matchPercentage,
+            salaryRange: match.salaryRange || { min: '60K', max: '120K' },
+            growthPotential: match.growthPotential || 'Moderate',
+            currentDemand: match.currentDemand || 'Moderate',
+            matchedSkills: match.matchedSkills || [],
+            gapSkills: match.missingSkills || []
+        }));
         
-        // For now, display placeholder content
-        await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
-        
-        // Update profile match stats
-        updateProfileMatchStats({
-            matchingSkills: 24,
-            yearsExperience: 3,
-            industryMatches: 8
-        });
-        
-        // Display placeholder career recommendations
-        displayCareerRecommendations([
-            {
-                id: 'data-scientist',
-                title: 'Data Scientist',
-                subtitle: 'AI & Machine Learning Focus',
-                matchScore: '95',
-                salaryRange: { min: '95K', max: '150K' },
-                growthPotential: 'High',
-                currentDemand: 'Very High',
-                matchedSkills: ['Python', 'Machine Learning', 'Data Analysis'],
-                gapSkills: ['Deep Learning']
-            },
-            {
-                id: 'cloud-architect',
-                title: 'Cloud Solutions Architect',
-                subtitle: 'Enterprise Infrastructure',
-                matchScore: '88',
-                salaryRange: { min: '110K', max: '180K' },
-                growthPotential: 'Very High',
-                currentDemand: 'High',
-                matchedSkills: ['AWS', 'Cloud Architecture', 'DevOps'],
-                gapSkills: ['Kubernetes']
-            },
-            {
-                id: 'full-stack',
-                title: 'Full Stack Developer',
-                subtitle: 'Modern Web Technologies',
-                matchScore: '85',
-                salaryRange: { min: '85K', max: '140K' },
-                growthPotential: 'High',
-                currentDemand: 'Very High',
-                matchedSkills: ['JavaScript', 'React', 'Node.js'],
-                gapSkills: ['GraphQL']
-            }
-        ]);
+        // Display the career recommendations
+        displayCareerRecommendations(formattedCareers);
         
         pageState.recommendationsLoaded = true;
     } catch (error) {
         console.error('Error loading career recommendations:', error);
-        showNotification('Error loading career recommendations', 'error');
+        showNotification('Error loading career recommendations: ' + error.message, 'error');
         pageState.recommendationsLoaded = false;
+        
+        // Show fallback content if there was an error
+        if (!pageState.fallbackDisplayed) {
+            displayFallbackContent();
+        }
     }
 }
 
-// Load additional career paths
+/**
+ * Load additional career paths
+ */
 async function loadAdditionalCareerPaths() {
     try {
-        // In a real implementation, this would be an API call:
-        /*
-        const response = await fetch(API_ENDPOINTS.getMoreCareerPaths, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            }
-        });
+        // In production, use the real API endpoint
+        // const response = await fetch(API_ENDPOINTS.getMoreCareerPaths, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     credentials: 'include'
+        // });
+        // 
+        // if (!response.ok) {
+        //     throw new Error('Failed to fetch additional career paths');
+        // }
+        // 
+        // const data = await response.json();
+        // displayAdditionalCareers(data.careers);
         
-        if (!response.ok) {
-            throw new Error('Failed to fetch additional career paths');
-        }
-        
-        const data = await response.json();
-        displayAdditionalCareers(data.careers);
-        */
-        
-        console.log(`Additional career paths API endpoint: ${API_ENDPOINTS.getMoreCareerPaths}`);
-        
-        // For now, display placeholder content
+        // For development, use simulated data
+        console.log('Loading additional career paths...');
         await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
         
         displayAdditionalCareers([
@@ -307,35 +516,34 @@ async function loadAdditionalCareerPaths() {
         pageState.additionalPathsLoaded = true;
     } catch (error) {
         console.error('Error loading additional career paths:', error);
-        showNotification('Error loading additional career paths', 'error');
+        showNotification('Error loading additional career options', 'error');
         pageState.additionalPathsLoaded = false;
     }
 }
 
-// Load career development tips
+/**
+ * Load career development tips
+ */
 async function loadCareerTips() {
     try {
-        // In a real implementation, this would be an API call:
-        /*
-        const response = await fetch(API_ENDPOINTS.getCareerTips, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            }
-        });
+        // In production, use real API endpoint
+        // const response = await fetch(API_ENDPOINTS.getCareerTips, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     credentials: 'include'
+        // });
+        // 
+        // if (!response.ok) {
+        //     throw new Error('Failed to fetch career tips');
+        // }
+        // 
+        // const data = await response.json();
+        // displayCareerTips(data.tips);
         
-        if (!response.ok) {
-            throw new Error('Failed to fetch career tips');
-        }
-        
-        const data = await response.json();
-        displayCareerTips(data.tips);
-        */
-        
-        console.log(`Career tips API endpoint: ${API_ENDPOINTS.getCareerTips}`);
-        
-        // For now, display placeholder content
+        // For development, use simulated data
+        console.log('Loading career tips...');
         await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
         
         displayCareerTips([
@@ -359,139 +567,47 @@ async function loadCareerTips() {
         pageState.tipsLoaded = true;
     } catch (error) {
         console.error('Error loading career tips:', error);
-        showNotification('Error loading career tips', 'error');
+        showNotification('Error loading career development tips', 'error');
         pageState.tipsLoaded = false;
     }
 }
 
-// Display fallback content when API data is not available
-function displayFallbackContent() {
-    // Set flag to avoid duplicate fallback rendering
-    if (pageState.fallbackDisplayed) {
+/**
+ * Update profile match statistics in the UI
+ */
+function updateProfileMatchStats(stats) {
+    if (elements.matchingSkillsElement) {
+        elements.matchingSkillsElement.textContent = stats.matchingSkills;
+    }
+    
+    if (elements.yearsExperienceElement) {
+        elements.yearsExperienceElement.textContent = stats.yearsExperience;
+    }
+    
+    if (elements.industryMatchesElement) {
+        elements.industryMatchesElement.textContent = stats.industryMatches;
+    }
+}
+
+/**
+ * Display career recommendations in the UI
+ */
+function displayCareerRecommendations(careers) {
+    if (!elements.careerCardsContainer) {
+        console.error('Career cards container not found');
         return;
     }
     
-    pageState.fallbackDisplayed = true;
-    
-    // Update profile match summary with placeholder data
-    if (!pageState.recommendationsLoaded) {
-        updateProfileMatchStats({
-            matchingSkills: 'N/A',
-            yearsExperience: 'N/A',
-            industryMatches: 'N/A'
-        });
-        
-        // Display placeholder career recommendations
-        displayCareerRecommendations([
-            {
-                id: 'career-path-1',
-                title: 'Data Scientist',
-                subtitle: 'AI & Machine Learning Focus',
-                matchScore: 'N/A',
-                salaryRange: { min: 'N/A', max: 'N/A' },
-                growthPotential: 'N/A',
-                currentDemand: 'N/A',
-                matchedSkills: ['Python', 'Machine Learning', 'Data Analysis'],
-                gapSkills: ['Deep Learning']
-            },
-            {
-                id: 'career-path-2',
-                title: 'Cloud Solutions Architect',
-                subtitle: 'Enterprise Infrastructure',
-                matchScore: 'N/A',
-                salaryRange: { min: 'N/A', max: 'N/A' },
-                growthPotential: 'N/A',
-                currentDemand: 'N/A',
-                matchedSkills: ['AWS', 'Cloud Architecture', 'DevOps'],
-                gapSkills: ['Kubernetes']
-            },
-            {
-                id: 'career-path-3',
-                title: 'Full Stack Developer',
-                subtitle: 'Modern Web Technologies',
-                matchScore: 'N/A',
-                salaryRange: { min: 'N/A', max: 'N/A' },
-                growthPotential: 'N/A',
-                currentDemand: 'N/A',
-                matchedSkills: ['JavaScript', 'React', 'Node.js'],
-                gapSkills: ['GraphQL']
-            }
-        ]);
+    if (!careers || careers.length === 0) {
+        elements.careerCardsContainer.innerHTML = `
+            <div class="empty-state">
+                <p>No career recommendations found. Complete your profile to get personalized recommendations.</p>
+            </div>
+        `;
+        return;
     }
     
-    // Display placeholder additional careers
-    if (!pageState.additionalPathsLoaded) {
-        displayAdditionalCareers([
-            {
-                id: 'ml-engineer',
-                title: 'Machine Learning Engineer',
-                matchScore: 'N/A',
-                salary: { min: 'N/A', max: 'N/A' },
-                demand: 'N/A'
-            },
-            {
-                id: 'devops-engineer',
-                title: 'DevOps Engineer',
-                matchScore: 'N/A',
-                salary: { min: 'N/A', max: 'N/A' },
-                demand: 'N/A'
-            },
-            {
-                id: 'mobile-developer',
-                title: 'Mobile App Developer',
-                matchScore: 'N/A',
-                salary: { min: 'N/A', max: 'N/A' },
-                demand: 'N/A'
-            },
-            {
-                id: 'security-engineer',
-                title: 'Security Engineer',
-                matchScore: 'N/A',
-                salary: { min: 'N/A', max: 'N/A' },
-                demand: 'N/A'
-            }
-        ]);
-    }
-    
-    // Display placeholder career tips
-    if (!pageState.tipsLoaded) {
-        displayCareerTips([
-            {
-                icon: '📚',
-                title: 'Continuous Learning',
-                description: 'Set aside time each week to learn new skills and stay updated with industry trends.'
-            },
-            {
-                icon: '🌐',
-                title: 'Build Your Network',
-                description: 'Join professional communities and attend industry events to expand your connections.'
-            },
-            {
-                icon: '💼',
-                title: 'Portfolio Development',
-                description: 'Create personal projects to demonstrate your skills and problem-solving abilities.'
-            }
-        ]);
-    }
-}
-
-// Update profile match statistics
-function updateProfileMatchStats(stats) {
-    const matchingSkills = document.querySelector('.stat-item:nth-child(1) .stat-value');
-    const yearsExperience = document.querySelector('.stat-item:nth-child(2) .stat-value');
-    const industryMatches = document.querySelector('.stat-item:nth-child(3) .stat-value');
-    
-    if (matchingSkills) matchingSkills.textContent = stats.matchingSkills;
-    if (yearsExperience) yearsExperience.textContent = stats.yearsExperience;
-    if (industryMatches) industryMatches.textContent = stats.industryMatches;
-}
-
-// Display career recommendations
-function displayCareerRecommendations(careers) {
-    const careerCardsContainer = document.querySelector('.career-cards');
-    if (!careerCardsContainer) return;
-    
-    careerCardsContainer.innerHTML = careers.map(career => `
+    elements.careerCardsContainer.innerHTML = careers.map(career => `
         <div class="career-card">
             <div class="career-header">
                 <span class="match-score">${career.matchScore}% Match</span>
@@ -546,12 +662,21 @@ function displayCareerRecommendations(careers) {
     `).join('');
 }
 
-// Function to display additional career recommendations
+/**
+ * Display additional career recommendations
+ */
 function displayAdditionalCareers(careers) {
-    const additionalCareersContainer = document.querySelector('.recommendation-grid');
-    if (!additionalCareersContainer) return;
+    if (!elements.additionalCareersContainer) {
+        console.error('Additional careers container not found');
+        return;
+    }
     
-    additionalCareersContainer.innerHTML = careers.map(career => `
+    if (!careers || careers.length === 0) {
+        elements.additionalCareersContainer.innerHTML = '<div class="empty-state">No additional careers available</div>';
+        return;
+    }
+    
+    elements.additionalCareersContainer.innerHTML = careers.map(career => `
         <div class="mini-career-card">
             <div class="mini-card-header">
                 <span class="mini-match">${career.matchScore}%</span>
@@ -572,12 +697,21 @@ function displayAdditionalCareers(careers) {
     `).join('');
 }
 
-// Display career development tips
+/**
+ * Display career development tips
+ */
 function displayCareerTips(tips) {
-    const tipsContainer = document.querySelector('.tip-cards');
-    if (!tipsContainer) return;
+    if (!elements.tipsContainer) {
+        console.error('Tips container not found');
+        return;
+    }
     
-    tipsContainer.innerHTML = tips.map(tip => `
+    if (!tips || tips.length === 0) {
+        elements.tipsContainer.innerHTML = '<div class="empty-state">No career tips available</div>';
+        return;
+    }
+    
+    elements.tipsContainer.innerHTML = tips.map(tip => `
         <div class="tip-card">
             <div class="tip-icon">${tip.icon}</div>
             <h4>${tip.title}</h4>
@@ -586,85 +720,197 @@ function displayCareerTips(tips) {
     `).join('');
 }
 
-// View career details
+/**
+ * Display fallback content when API data is not available
+ */
+function displayFallbackContent() {
+    // Set flag to avoid duplicate fallback rendering
+    if (pageState.fallbackDisplayed) {
+        return;
+    }
+    
+    pageState.fallbackDisplayed = true;
+    
+    // Display placeholder content
+    if (!pageState.recommendationsLoaded) {
+        updateProfileMatchStats({
+            matchingSkills: 'N/A',
+            yearsExperience: 'N/A',
+            industryMatches: 'N/A'
+        });
+        
+        displayCareerRecommendations([
+            {
+                id: 'data-scientist',
+                title: 'Data Scientist',
+                subtitle: 'AI & Machine Learning Focus',
+                matchScore: 'N/A',
+                salaryRange: { min: 'N/A', max: 'N/A' },
+                growthPotential: 'N/A',
+                currentDemand: 'N/A',
+                matchedSkills: ['Python', 'Machine Learning', 'Data Analysis'],
+                gapSkills: ['Deep Learning']
+            },
+            {
+                id: 'cloud-architect',
+                title: 'Cloud Solutions Architect',
+                subtitle: 'Enterprise Infrastructure',
+                matchScore: 'N/A',
+                salaryRange: { min: 'N/A', max: 'N/A' },
+                growthPotential: 'N/A',
+                currentDemand: 'N/A',
+                matchedSkills: ['AWS', 'Cloud Architecture', 'DevOps'],
+                gapSkills: ['Kubernetes']
+            }
+        ]);
+    }
+    
+    if (!pageState.additionalPathsLoaded) {
+        displayAdditionalCareers([
+            {
+                id: 'ml-engineer',
+                title: 'Machine Learning Engineer',
+                matchScore: 'N/A',
+                salary: { min: 'N/A', max: 'N/A' },
+                demand: 'N/A'
+            },
+            {
+                id: 'devops-engineer',
+                title: 'DevOps Engineer',
+                matchScore: 'N/A',
+                salary: { min: 'N/A', max: 'N/A' },
+                demand: 'N/A'
+            }
+        ]);
+    }
+    
+    if (!pageState.tipsLoaded) {
+        displayCareerTips([
+            {
+                icon: '📚',
+                title: 'Continuous Learning',
+                description: 'Set aside time each week to learn new skills and stay updated with industry trends.'
+            },
+            {
+                icon: '🌐',
+                title: 'Build Your Network',
+                description: 'Join professional communities and attend industry events to expand your connections.'
+            }
+        ]);
+    }
+}
+
+/**
+ * View career details
+ */
 async function viewCareerDetails(careerId) {
     try {
-        // In a real implementation, this would be an API call:
-        /*
-        const response = await fetch(`${API_ENDPOINTS.getCareerDetails}/${careerId}`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            }
-        });
-        if (!response.ok) {
-            throw new Error('Failed to fetch career details');
-        }
-        const data = await response.json();
-        */
+        showNotification('Loading career details...', 'info');
         
-        showNotification('Loading career details...', 'success');
-        console.log(`API endpoint to call: ${API_ENDPOINTS.getCareerDetails}/${careerId}`);
-        // Would normally navigate to detail page:
+        // In production, use real API
+        // const response = await fetch(`${API_ENDPOINTS.getCareerDetails}/${careerId}`, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     credentials: 'include'
+        // });
+        // 
+        // if (!response.ok) {
+        //     throw new Error('Failed to fetch career details');
+        // }
+        // 
+        // const data = await response.json();
         // window.location.href = `career-details.html?id=${careerId}`;
+        
+        // For development - simulate API call
+        console.log(`Viewing career details for: ${careerId}`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // For now, just show a notification
+        showNotification('Career details feature coming soon!', 'success');
     } catch (error) {
         console.error('Error viewing career details:', error);
-        showNotification('Error loading career details', 'error');
+        showNotification('Unable to load career details. Please try again.', 'error');
     }
 }
 
-// Save career path
+/**
+ * Save career path
+ */
 async function saveCareerPath(careerId) {
     try {
-        // In a real implementation, this would be an API call:
-        /*
-        const response = await fetch(API_ENDPOINTS.saveCareerPath, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            },
-            body: JSON.stringify({
-                userId: pageState.user?.id,
-                careerId: careerId
-            })
-        });
+        // In production, use real API
+        // const response = await fetch(API_ENDPOINTS.saveCareerPath, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     credentials: 'include',
+        //     body: JSON.stringify({
+        //         careerId: careerId
+        //     })
+        // });
+        // 
+        // if (!response.ok) {
+        //     throw new Error('Failed to save career path');
+        // }
+        // 
+        // const data = await response.json();
         
-        if (!response.ok) {
-            throw new Error('Failed to save career path');
-        }
-        */
+        // For development - simulate API call
+        console.log(`Saving career path: ${careerId}`);
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         showNotification('Career path saved successfully!', 'success');
-        console.log(`API endpoint to call: ${API_ENDPOINTS.saveCareerPath} with career ID: ${careerId}`);
     } catch (error) {
         console.error('Error saving career path:', error);
-        showNotification('Error saving career path', 'error');
+        showNotification('Failed to save career path. Please try again.', 'error');
     }
 }
 
-// Utility to show notifications
-function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    if (!notification) return;
+/**
+ * Handle logout
+ */
+function handleLogout() {
+    fetch('http://localhost:5050/api/users/logout', {
+        method: 'POST',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = 'index.html';
+        } else {
+            throw new Error('Logout failed');
+        }
+    })
+    .catch(error => {
+        console.error('Logout error:', error);
+        showNotification('Logout failed. Please try again.', 'error');
+    });
+}
+
+/**
+ * Show notification to user
+ */
+function showNotification(message, type = 'info') {
+    if (!elements.notificationElement) {
+        console.error('Notification element not found');
+        alert(message); // Fallback to alert if notification element not found
+        return;
+    }
     
-    notification.textContent = message;
-    notification.className = `notification ${type}`;
+    elements.notificationElement.textContent = message;
+    elements.notificationElement.className = `notification ${type}`;
+    elements.notificationElement.classList.remove('hidden');
     
     // Clear any existing timeout
-    if (notification.timeoutId) {
-        clearTimeout(notification.timeoutId);
+    if (window.notificationTimeout) {
+        clearTimeout(window.notificationTimeout);
     }
     
-    // Set new timeout
-    notification.timeoutId = setTimeout(() => {
-        notification.className = 'notification hidden';
+    // Auto-hide notification after delay
+    window.notificationTimeout = setTimeout(() => {
+        elements.notificationElement.classList.add('hidden');
     }, 3000);
-}
-
-// Handle logout
-function handleLogout() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('userProfile');
-    localStorage.removeItem('authToken');
-    window.location.href = 'index.html';
 }
