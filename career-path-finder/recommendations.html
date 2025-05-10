@@ -41,28 +41,22 @@
                 </div>
 
                 <div class="nav-section">
-    <h3 class="nav-title">Results</h3>
-    <ul class="nav-list">
-        <li>
-            <a href="recommendations.html" class="nav-link" id="recommendationsLink">
-                <span class="nav-icon">📊</span>
-                Career Paths
-            </a>
-        </li>
-        <li>
-            <a href="skills-gap.html" class="nav-link">
-                <span class="nav-icon">📈</span>
-                Skills Gap
-            </a>
-        </li>
-        <li>
-            <a href="job-matches.html" class="nav-link">
-                <span class="nav-icon">🤝</span>
-                Job Matches
-            </a>
-        </li>
-    </ul>
-</div>
+                    <h3 class="nav-title">Results</h3>
+                    <ul class="nav-list">
+                        <li><a href="recommendations.html" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            Career Paths
+                        </a></li>
+                        <li><a href="skills-gap.html" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            Skills Gap
+                        </a></li>
+                        <li><a href="job-matches.html" class="nav-link">
+                            <span class="nav-icon">🤝</span>
+                            Job Matches
+                        </a></li>
+                    </ul>
+                </div>
             </nav>
 
             <!-- User Menu -->
@@ -86,6 +80,7 @@
             <header class="content-header">
                 <h2 class="page-title">Career Recommendations</h2>
                 <div class="header-actions">
+                    <button class="compare-btn">Compare Careers</button>
                     <button class="help-btn">
                         <span class="nav-icon">❓</span>
                         Help
@@ -121,7 +116,158 @@
                 <div class="top-careers">
                     <h3>Top Career Paths for You</h3>
                     <div class="career-cards">
-                        <!-- Career cards will be populated by JavaScript -->
+                        <!-- Career Card 1 -->
+                        <div class="career-card">
+                            <div class="career-header">
+                                <span class="match-score">95% Match</span>
+                                <h3 class="career-title">Data Scientist</h3>
+                                <p class="career-subtitle">AI & Machine Learning Focus</p>
+                            </div>
+                            <div class="career-content">
+                                <div class="key-details">
+                                    <div class="detail-item">
+                                        <span class="detail-icon">💰</span>
+                                        <div class="detail-info">
+                                            <div class="detail-label">Salary Range</div>
+                                            <div class="detail-value">$95K - $150K</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-icon">📈</span>
+                                        <div class="detail-info">
+                                            <div class="detail-label">Growth Potential</div>
+                                            <div class="detail-value">High</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-icon">🎯</span>
+                                        <div class="detail-info">
+                                            <div class="detail-label">Current Demand</div>
+                                            <div class="detail-value">Very High</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="career-skills">
+                                    <h4 class="skills-title">Required Skills</h4>
+                                    <div class="skills-list">
+                                        <span class="skill-tag">Python</span>
+                                        <span class="skill-tag">Machine Learning</span>
+                                        <span class="skill-tag">Data Analysis</span>
+                                        <span class="skill-tag gap">Deep Learning</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="career-actions">
+                                <button class="view-details-btn" onclick="viewCareerDetails('data-scientist')">
+                                    View Details
+                                </button>
+                                <button class="save-career-btn" onclick="saveCareerPath('data-scientist')">
+                                    Save Path
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Career Card 2 -->
+                        <div class="career-card">
+                            <div class="career-header">
+                                <span class="match-score">88% Match</span>
+                                <h3 class="career-title">Cloud Solutions Architect</h3>
+                                <p class="career-subtitle">Enterprise Infrastructure</p>
+                            </div>
+                            <div class="career-content">
+                                <div class="key-details">
+                                    <div class="detail-item">
+                                        <span class="detail-icon">💰</span>
+                                        <div class="detail-info">
+                                            <div class="detail-label">Salary Range</div>
+                                            <div class="detail-value">$110K - $180K</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-icon">📈</span>
+                                        <div class="detail-info">
+                                            <div class="detail-label">Growth Potential</div>
+                                            <div class="detail-value">Very High</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-icon">🎯</span>
+                                        <div class="detail-info">
+                                            <div class="detail-label">Current Demand</div>
+                                            <div class="detail-value">High</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="career-skills">
+                                    <h4 class="skills-title">Required Skills</h4>
+                                    <div class="skills-list">
+                                        <span class="skill-tag">AWS</span>
+                                        <span class="skill-tag">Cloud Architecture</span>
+                                        <span class="skill-tag">DevOps</span>
+                                        <span class="skill-tag gap">Kubernetes</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="career-actions">
+                                <button class="view-details-btn" onclick="viewCareerDetails('cloud-architect')">
+                                    View Details
+                                </button>
+                                <button class="save-career-btn" onclick="saveCareerPath('cloud-architect')">
+                                    Save Path
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Career Card 3 -->
+                        <div class="career-card">
+                            <div class="career-header">
+                                <span class="match-score">85% Match</span>
+                                <h3 class="career-title">Full Stack Developer</h3>
+                                <p class="career-subtitle">Modern Web Technologies</p>
+                            </div>
+                            <div class="career-content">
+                                <div class="key-details">
+                                    <div class="detail-item">
+                                        <span class="detail-icon">💰</span>
+                                        <div class="detail-info">
+                                            <div class="detail-label">Salary Range</div>
+                                            <div class="detail-value">$85K - $140K</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-icon">📈</span>
+                                        <div class="detail-info">
+                                            <div class="detail-label">Growth Potential</div>
+                                            <div class="detail-value">High</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-icon">🎯</span>
+                                        <div class="detail-info">
+                                            <div class="detail-label">Current Demand</div>
+                                            <div class="detail-value">Very High</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="career-skills">
+                                    <h4 class="skills-title">Required Skills</h4>
+                                    <div class="skills-list">
+                                        <span class="skill-tag">JavaScript</span>
+                                        <span class="skill-tag">React</span>
+                                        <span class="skill-tag">Node.js</span>
+                                        <span class="skill-tag gap">GraphQL</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="career-actions">
+                                <button class="view-details-btn" onclick="viewCareerDetails('full-stack')">
+                                    View Details
+                                </button>
+                                <button class="save-career-btn" onclick="saveCareerPath('full-stack')">
+                                    Save Path
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -129,7 +275,103 @@
                 <div class="additional-recommendations">
                     <h3>More Career Paths to Explore</h3>
                     <div class="recommendation-grid">
-                        <!-- Additional recommendations will be populated by JavaScript -->
+                        <!-- Additional Career Path 1 -->
+                        <div class="mini-career-card">
+                            <div class="mini-card-header">
+                                <span class="mini-match">79%</span>
+                                <h4>Machine Learning Engineer</h4>
+                            </div>
+                            <div class="mini-card-content">
+                                <div class="mini-detail">
+                                    <span class="mini-label">Salary:</span>
+                                    <span class="mini-value">$105K - $170K</span>
+                                </div>
+                                <div class="mini-detail">
+                                    <span class="mini-label">Demand:</span>
+                                    <span class="mini-value">High</span>
+                                </div>
+                            </div>
+                            <button class="mini-view-btn" onclick="viewCareerDetails('ml-engineer')">View Details</button>
+                        </div>
+
+                        <!-- Additional Career Path 2 -->
+                        <div class="mini-career-card">
+                            <div class="mini-card-header">
+                                <span class="mini-match">76%</span>
+                                <h4>DevOps Engineer</h4>
+                            </div>
+                            <div class="mini-card-content">
+                                <div class="mini-detail">
+                                    <span class="mini-label">Salary:</span>
+                                    <span class="mini-value">$95K - $160K</span>
+                                </div>
+                                <div class="mini-detail">
+                                    <span class="mini-label">Demand:</span>
+                                    <span class="mini-value">Very High</span>
+                                </div>
+                            </div>
+                            <button class="mini-view-btn" onclick="viewCareerDetails('devops-engineer')">View Details</button>
+                        </div>
+
+                        <!-- Additional Career Path 3 -->
+                        <div class="mini-career-card">
+                            <div class="mini-card-header">
+                                <span class="mini-match">72%</span>
+                                <h4>Mobile App Developer</h4>
+                            </div>
+                            <div class="mini-card-content">
+                                <div class="mini-detail">
+                                    <span class="mini-label">Salary:</span>
+                                    <span class="mini-value">$80K - $140K</span>
+                                </div>
+                                <div class="mini-detail">
+                                    <span class="mini-label">Demand:</span>
+                                    <span class="mini-value">High</span>
+                                </div>
+                            </div>
+                            <button class="mini-view-btn" onclick="viewCareerDetails('mobile-developer')">View Details</button>
+                        </div>
+
+                        <!-- Additional Career Path 4 -->
+                        <div class="mini-career-card">
+                            <div class="mini-card-header">
+                                <span class="mini-match">68%</span>
+                                <h4>Security Engineer</h4>
+                            </div>
+                            <div class="mini-card-content">
+                                <div class="mini-detail">
+                                    <span class="mini-label">Salary:</span>
+                                    <span class="mini-value">$90K - $150K</span>
+                                </div>
+                                <div class="mini-detail">
+                                    <span class="mini-label">Demand:</span>
+                                    <span class="mini-value">High</span>
+                                </div>
+                            </div>
+                            <button class="mini-view-btn" onclick="viewCareerDetails('security-engineer')">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Career Development Tips -->
+                <div class="career-development">
+                    <h3>Career Development Tips</h3>
+                    <div class="tip-cards">
+                        <div class="tip-card">
+                            <div class="tip-icon">📚</div>
+                            <h4>Continuous Learning</h4>
+                            <p>Set aside time each week to learn new skills and stay updated with industry trends.</p>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon">🌐</div>
+                            <h4>Build Your Network</h4>
+                            <p>Join professional communities and attend industry events to expand your connections.</p>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon">💼</div>
+                            <h4>Portfolio Development</h4>
+                            <p>Create personal projects to demonstrate your skills and problem-solving abilities.</p>
+                        </div>
                     </div>
                 </div>
             </div>
